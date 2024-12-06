@@ -26,4 +26,4 @@ Ce projet consiste à :
 - Permettre la configuration du test via l'interface graphique : l'utilisateur pourra paramétrer les conditions du test (fréquences, types de signaux, etc.) et lancer le test.
 
 ## Diagramme
-![Diagramme](image/diagramme.png)
+![Diagramme](doc/image/diagramme.png)
