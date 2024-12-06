@@ -27,3 +27,17 @@ Ce projet consiste à :
 
 ## Diagramme
 ![Diagramme](doc/image/diagramme.png)
+
+## Appareils de mesures
+
+### Oscilloscope :
+![Oscilloscope_f](doc/image/Oscilloscope_f.jpg)
+![Oscilloscope_b](doc/image/Oscilloscope_b.jpg)
+
+### Générateur de fonctions :
+![gene_f](doc/image/gene_f.jpg)
+![gene_b](doc/image/gene_b.jpg)
+
+### Multimètre digital :
+![gene_f](doc/image/multim_f.jpg)
+![gene_b](doc/image/multim_b.jpg)
