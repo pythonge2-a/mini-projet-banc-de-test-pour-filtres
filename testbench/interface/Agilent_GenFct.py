@@ -86,4 +86,4 @@ print(Genfct.get_waveform())
 #print(Genfct.get_DutyCycle())
 print(Genfct.get_output_status())
 
-    
+
