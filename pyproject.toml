@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "py-banc-de-test"
+name = "testbench"
 version = "0.1.0"
 description = ""
 authors = ["rynerd <martin.luthi@heig-vd.ch>"]
