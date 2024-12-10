@@ -2,7 +2,7 @@ from src.interface.tek_scope import TektronixTDS3014C
 
 def main():
     # Adresse IP de l'oscilloscope
-    osc_ip = "192.168.1.100"
+    osc_ip = "10.192.79.62"
 
     # Instancier la classe
     scope = TektronixTDS3014C(osc_ip)
