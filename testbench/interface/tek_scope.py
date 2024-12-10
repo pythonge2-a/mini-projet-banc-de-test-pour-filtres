@@ -5,7 +5,7 @@ ip = '10.192.79.62'
 rm = pyvisa.ResourceManager('@py')
 
 try:
-    scope = rm.open_resource(f'TCPIP::{ip}:INSTR')
+    scope = rm.open_resource(f'TCPIP0::{ip}::inst0::INSTR')
     print(scope.query('*IDN?'))
 except VisaIOError as e:
     print(f"Failed to connect to the device: {e}")
