@@ -6,7 +6,7 @@ class Agilent33220A:
         self.resourceManager = pyvisa.ResourceManager()
         self.resourceString = f"TCPIP::{ip_address}::INSTR"
         self.functionGenerator = None
-    
+    # CONNECTION
     def connect(self):
         """Établit la connexion avec le générateur de fonctions."""
         try:
@@ -15,7 +15,6 @@ class Agilent33220A:
         except Exception as e:
             raise ConnectionError(f"Erreur de connexion : {e}")
         
-    
     def disconnect(self):
         """Ferme la connexion avec le générateur de fonctions."""
         if self.functionGenerator:
@@ -27,6 +26,20 @@ class Agilent33220A:
         """Retourne l'identifiant du générateur de fonctions."""
         return self.functionGenerator.query("*IDN?")
     
+    # OUTPUT
+    def ActiveOutput(self):
+        """Active la sortie du générateur de fonctions."""
+        self.functionGenerator.write("OUTPUT ON")
+
+    def DeactiveOutput(self):
+        """Désactive la sortie du générateur de fonctions."""
+        self.functionGenerator.write("OUTPUT OFF")
+
+    def get_output_status(self):
+        """Lit l'état de la sortie du générateur de fonctions."""
+        return self.functionGenerator.query("OUTPUT?")
+    
+    # SIGNAL CONFIGURATION
     def set_frequency(self, frequency):
         """Configure la fréquence du signal."""
         self.functionGenerator.write(f"FREQUENCY {frequency}")
@@ -50,4 +63,16 @@ class Agilent33220A:
     def get_waveform(self):
         """Lit la forme d'onde du signal."""
         return self.functionGenerator.query("FUNCTION?")
+
+Genfct = Agilent33220A("10.192.79.15")
+Genfct.connect()
+print(Genfct.get_id())
+Genfct.set_amplitude(10)
+Genfct.set_frequency(200)
+Genfct.set_waveform("SQUARE")
+Genfct.ActiveOutput()
+print(Genfct.get_amplitude())
+print(Genfct.get_frequency())
+print(Genfct.get_waveform())
+
     
