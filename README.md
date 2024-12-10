@@ -41,3 +41,7 @@ Ce projet consiste à :
 ### Multimètre digital :
 ![gene_f](doc/image/multim_f.jpg)
 ![gene_b](doc/image/multim_b.jpg)
+
+# Liste des tâches par personnes
+![Liste_taches](doc/image/Liste_taches.png)
+
