@@ -1,3 +1,0 @@
-import pyvisa
-
-class 
