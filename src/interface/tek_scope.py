@@ -2,10 +2,10 @@ import pyvisa
 from pyvisa import VisaIOError
 
 ip = '10.192.79.62'
-rm = pyvisa.ResourceManager('@py')
+rm = pyvisa.ResourceManager()
 
 try:
-    scope = rm.open_resource(f'TCPIP0::{ip}::inst0::INSTR')
+    scope = rm.open_resource(f'TCPIP::{ip}:INSTR')
     print(scope.query('*IDN?'))
 except VisaIOError as e:
     print(f"Failed to connect to the device: {e}")
