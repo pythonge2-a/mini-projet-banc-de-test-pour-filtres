@@ -27,3 +27,12 @@ class SiglentSDM3065X:
     def get_id(self):
         """Retourne l'identifiant du multimètre."""
         return self.multimeter.query("*IDN?")
+    
+    def get_measure(self):
+        """Lit la mesure du multimètre."""
+        return self.multimeter.query("MEASURE?")
+    
+multimeter= SiglentSDM3065X(ip_test_lab_multimeter)
+multimeter.connect()
+print(multimeter.get_id())
+print(multimeter.get_measure())
