@@ -1,38 +1,47 @@
-# Nom du projet
+# Projet banc de test pour filtres
+## Membres du groupe
 
-## Membres
+- Nicolas Zaco
+- Rémy Di Giovanni
+- Julien Vullioud
+- Martin Luthi
 
-- Nom 1
-- Nom 2
-- Nom 3
-- ...
+# Objectif du projet
+
+L'objectif de ce projet est de développer un programme en Python permettant de tester un filtre de type quelconque. Le programme interagira avec un générateur de signaux et un oscilloscope afin de générer et d'analyser un diagramme de Bode.
 
 ## Description
+Ce projet consiste à :
 
-Description du projet en quelques lignes
+- Interfacer un oscilloscope et un générateur de fonctions avec un PC, afin de réaliser des mesures sur un filtre d'ordre n.
 
-## Cahier des charges
+- Utiliser le générateur de fonctions pour produire des signaux sinusoïdaux à fréquence variable, servant d'entrée pour le filtre à tester.
 
-- Ceci **doit** être fait
-- Ceci **doit** être fait
-- Ceci **devrait** être fait (si le temps le permet)
-- ...
+- Mesurer la réponse du filtre avec l'oscilloscope, qui enregistrera l'amplitude et la phase de la sortie du filtre pour différentes fréquences.
 
-## Installation
+- Récupérer les données mesurées par l'oscilloscope via le PC, pour les traiter et caractériser le filtre (gain, réponse en fréquence, etc.).
 
-```bash
-poetry install
-...
-```
+- Afficher les résultats via une interface graphique, permettant de visualiser les caractéristiques du filtre sous forme de diagramme de Bode.
 
-## (Pour les étudiants, à supprimer une fois fait)
+- Permettre la configuration du test via l'interface graphique : l'utilisateur pourra paramétrer les conditions du test (fréquences, types de signaux, etc.) et lancer le test.
 
-### Comment créer le module
+## Diagramme
+![Diagramme](doc/image/diagramme.png)
 
-1. Créer un nouveau répertoire avec le nom du module
-2. Créer un fichier `__init__.py` vide
-3. Créer un fichier `__main__.py` vide
-4. Mettre à jour le fichier `README.md`
-5. Créer un projet Poetry avec `poetry new`
-6. Ajouter les fichiers à Git
-7. Commit et push
+## Appareils de mesures
+
+### Oscilloscope :
+![Oscilloscope_f](doc/image/Oscilloscope_f.jpg)
+![Oscilloscope_b](doc/image/Oscilloscope_b.jpg)
+
+### Générateur de fonctions :
+![gene_f](doc/image/gene_f.jpg)
+![gene_b](doc/image/gene_b.jpg)
+
+### Multimètre digital :
+![gene_f](doc/image/multim_f.jpg)
+![gene_b](doc/image/multim_b.jpg)
+
+# Liste des tâches par personnes
+![Liste_taches](doc/image/Liste_taches.png)
+
