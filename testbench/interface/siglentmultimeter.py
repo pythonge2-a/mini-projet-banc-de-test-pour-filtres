@@ -1,6 +1,6 @@
 import pyvisa
 
-ip_test_lab_multimeter = "10.192.79.36"
+#ip_test_lab_multimeter = "10.192.79.36"
 
 class SiglentSDM3065X:
     def __init__(self, ip_address):
@@ -32,7 +32,3 @@ class SiglentSDM3065X:
         """Lit la mesure du multimètre."""
         return self.multimeter.query("MEASURE?")
     
-multimeter= SiglentSDM3065X(ip_test_lab_multimeter)
-multimeter.connect()
-print(multimeter.get_id())
-print(multimeter.get_measure())
