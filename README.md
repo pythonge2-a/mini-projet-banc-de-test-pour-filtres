@@ -45,3 +45,15 @@ Ce projet consiste à :
 # Liste des tâches par personnes
 ![Liste_taches](doc/image/Liste_taches.png)
 
+# Fonctionnement de la mesure
+![Diagramme_Code_Mesure](doc/image/Diagramme_Code_Mesure.png)
+
+- Envois des paramètres de fréquence et amplitude au générateur de fonctions
+- attente de la stabilisation de la sortie du générateur (soit temp d'attente, soit validation par le générateur)
+- Mesure de l'amplitude et de la phase par l'oscilloscope (exemple: CH1: (fréquence ; amplitude) CH2: (fréquence ; amplitude) Phase (fréquence ; phase))
+  - fréquence: fréquence mesurée par l'oscillo (on ne fait pas confiance au générateur)
+  - amplitude: amplitude mesurée par l'oscillo, CH1 entrée filtre, CH2 sortie filtre
+  - phase: phase mesurée par l'oscillo par mesure auto ou par delta T.
+- mesure de l'amplitude de sortie du filtre (exemple: Uout(fréquence ; amplitude) )
+  - fréquence: fréquence mesurée par l'oscilloscope
+  - amplutide: amplitude de la sortie du filtre mesurée par le multimètre

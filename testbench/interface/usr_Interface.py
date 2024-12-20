@@ -127,8 +127,36 @@ class MainFrame(wx.Frame):
             for device, ip in ip_addresses.items():
                 print(f"{device}: {ip}")
 
+            # Lancer la page de résultats de test
+            self.test_results()
+
         # retourner les valeurs de configuration
         return min_freq, max_freq, amplitude, ip_addresses
+    
+    # fonction de la page de résultats de test lancée apres pression du bouton (avec bare de chargement et affichage des résultats) 
+    def test_results(self):
+        """Afficher la page de résultats de test."""
+        # Créer une nouvelle fenêtre
+        result_frame = wx.Frame(parent=None, title='Test Results', size=(400, 550))
+        panel = wx.Panel(result_frame)
+
+        # Barre de chargement
+        gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
+        gauge.SetValue(50)
+
+        # Afficher les résultats
+        result_text = wx.StaticText(panel, label='Test Results:', pos=(20, 60))
+        font = result_text.GetFont()
+        font.SetPointSize(11)
+        font.SetWeight(wx.FONTWEIGHT_BOLD)
+        result_text.SetFont(font)
+
+        # Afficher les résultats dans un texte
+        results = "Results will be displayed here."
+        results_text = wx.TextCtrl(panel, value=results, pos=(20, 90), size=(360, 400), style=wx.TE_MULTILINE | wx.TE_READONLY)
+
+        # Afficher la fenêtre
+        result_frame.Show()
 
 if __name__ == '__main__':
     app = wx.App(False)
