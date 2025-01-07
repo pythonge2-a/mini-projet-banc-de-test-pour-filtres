@@ -1,6 +1,6 @@
 import pyvisa
 
-ip = '10.192.79.30'
+ip = '10.192.79.79'
 
 try:
     # Initialisation du gestionnaire de ressources
