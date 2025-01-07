@@ -57,3 +57,14 @@ Ce projet consiste à :
 - mesure de l'amplitude de sortie du filtre (exemple: Uout(fréquence ; amplitude) )
   - fréquence: fréquence mesurée par l'oscilloscope
   - amplutide: amplitude de la sortie du filtre mesurée par le multimètre
+
+# (OPTIONNEL) mode rapide FFT, bruit en entrée 
+
+- Mesure : 
+  - Le bruit blanc est appliqué à l'entrée du filtre, et le signal de sortie est capturé.
+- Gain et phase : 
+  - La FFT permet d'extraire le gain et le déphasage du filtre pour chaque fréquence.
+- Rapide et efficace : 
+  - Cette méthode caractérise le comportement du filtre en une seule mesure sur toute la bande passante.
+- Applications : 
+  - Utilisée en électronique, audio, et télécommunications pour évaluer les filtres passe-bas, passe-haut, et autres.

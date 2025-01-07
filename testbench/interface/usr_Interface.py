@@ -4,7 +4,11 @@ import wx
 
 class MainFrame(wx.Frame):
     def __init__(self):
-        super().__init__(parent=None, title='FilterAnalyzer', size=(400, 550))
+
+        # Créer une fenêtre principale
+        super().__init__(parent=None, title='FilterAnalyzer', size=(380, 600)) 
+        # cengtre la fenetre
+        self.Centre()
         
         # Création d'un panneau
         panel = wx.Panel(self)
@@ -19,24 +23,44 @@ class MainFrame(wx.Frame):
         # Min frequency
         wx.StaticText(panel, label='Min frequency [Hz]:', pos=(20, 40))
         self.min_freq_ctrl = wx.TextCtrl(panel, pos=(180, 38), size=(100, -1))
+        # unités, kilo, mega, giga pour la fréquence
+        self.unitMinF = wx.ComboBox(panel, pos=(300, 38), choices=['Hz', 'kHz', 'MHz', 'GHz'], style=wx.CB_READONLY)
+        self.unitMinF.SetSelection(0)
 
         # Max frequency
         wx.StaticText(panel, label='Max frequency [Hz]:', pos=(20, 70))
         self.max_freq_ctrl = wx.TextCtrl(panel, pos=(180, 68), size=(100, -1))
+        # unités, kilo, mega, giga pour la fréquence
+        self.unitMaxF = wx.ComboBox(panel, pos=(300, 68), choices=['Hz', 'kHz', 'MHz', 'GHz'], style=wx.CB_READONLY)
+        self.unitMaxF.SetSelection(0)
+
+        # ---- Configuration du nombre de points ----
+        points_title = wx.StaticText(panel, label='Number of Points Configuration:', pos=(20, 110))
+        font = points_title.GetFont()
+        font.SetPointSize(11)
+        font.SetWeight(wx.FONTWEIGHT_BOLD)
+        points_title.SetFont(font)
+
+        # Number of points
+        wx.StaticText(panel, label='Number of Points:', pos=(20, 140))
+        self.points_ctrl = wx.TextCtrl(panel, pos=(180, 138), size=(100, -1))
+        # unités, kilo, mega, giga pour le nombre de points
+        self.unitPoint = wx.ComboBox(panel, pos=(300, 138), choices=['', 'k', 'M', 'G'], style=wx.CB_READONLY)
+        self.unitPoint.SetSelection(0)
 
         # ---- Configuration de l'amplitude ----
-        amp_title = wx.StaticText(panel, label='Amplitude Configuration:', pos=(20, 110))
+        amp_title = wx.StaticText(panel, label='Amplitude Configuration:', pos=(20, 180))
         font = amp_title.GetFont()
         font.SetPointSize(11)
         font.SetWeight(wx.FONTWEIGHT_BOLD)
         amp_title.SetFont(font)
 
         # Amplitude
-        wx.StaticText(panel, label='Amplitude [V]:', pos=(20, 140))
-        self.amp_ctrl = wx.TextCtrl(panel, pos=(180, 138), size=(100, -1))
+        wx.StaticText(panel, label='Amplitude [V]:', pos=(20, 208))
+        self.amp_ctrl = wx.TextCtrl(panel, pos=(180, 208), size=(100, -1))
 
         # ---- Configuration Ethernet pour les appareils ----
-        connection_title = wx.StaticText(panel, label='Ethernet Configuration:', pos=(20, 180))
+        connection_title = wx.StaticText(panel, label='Ethernet Configuration:', pos=(20, 250))
         font = connection_title.GetFont()
         font.SetPointSize(11)
         font.SetWeight(wx.FONTWEIGHT_BOLD)
@@ -45,7 +69,7 @@ class MainFrame(wx.Frame):
         # Champs IP pour Oscilloscope et Générateur de fonction
         self.devices = ['Oscilloscope', 'Générateur de fonction']
         self.ip_controls = {}
-        y_pos = 210
+        y_pos = 280
 
         for device in self.devices:
             wx.StaticText(panel, label=f'{device} IP Address:', pos=(20, y_pos))
@@ -82,7 +106,42 @@ class MainFrame(wx.Frame):
         """Récupérer les valeurs de fréquence."""
         min_freq = self.min_freq_ctrl.GetValue()
         max_freq = self.max_freq_ctrl.GetValue()
+
+        # Convertir les unités de fréquence
+        unitMinF = self.unitMinF.GetValue()
+        unitMaxF = self.unitMaxF.GetValue()
+
+        if unitMinF == 'kHz':
+            min_freq = float(min_freq) * 1e3
+        elif unitMinF == 'MHz':
+            min_freq = float(min_freq) * 1e6
+        elif unitMinF == 'GHz':
+            min_freq = float(min_freq) * 1e9
+
+        if unitMaxF == 'kHz':
+            max_freq = float(max_freq) * 1e3
+        elif unitMaxF == 'MHz':
+            max_freq = float(max_freq) * 1e6
+        elif unitMaxF == 'GHz':
+            max_freq = float(max_freq) * 1e9
+
         return min_freq, max_freq
+    
+    def get_points_config(self):
+        """Récupérer les valeurs de points."""
+        points = self.points_ctrl.GetValue()
+
+        # Convertir les unités de points
+        unitPoint = self.unitPoint.GetValue()
+
+        if unitPoint == 'k':
+            points = float(points) * 1e3
+        elif unitPoint == 'M':
+            points = float(points) * 1e6
+        elif unitPoint == 'G':
+            points = float(points) * 1e9
+
+        return points
 
     def get_amplitude(self):
         """Récupérer la valeur de l'amplitude."""
@@ -132,6 +191,12 @@ class MainFrame(wx.Frame):
 
         # retourner les valeurs de configuration
         return min_freq, max_freq, amplitude, ip_addresses
+
+    # fonction pour la mise à jour de la barre de chargement
+    def update_progress(self, progress):
+        """Mettre à jour la barre de progression."""
+        gauge = self.FindWindowById(1)
+        gauge.SetValue(progress)
     
     # fonction de la page de résultats de test lancée apres pression du bouton (avec bare de chargement et affichage des résultats) 
     def test_results(self):
@@ -143,7 +208,7 @@ class MainFrame(wx.Frame):
 
         # Barre de chargement
         gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
-        gauge.SetValue(50)
+        gauge.SetValue(5)
 
         # Afficher les résultats
         result_text = wx.StaticText(panel, label='Test Results:', pos=(20, 60))
