@@ -1,7 +1,5 @@
 import pyvisa
 
-#ip_test_lab_multimeter = "10.192.79.36"
-
 class SiglentSDM3065X:
     def __init__(self, ip_address):
         """Initialise multimeter class."""
@@ -102,6 +100,5 @@ class SiglentSDM3065X:
         get_measure_v_ac()
         get_measure_v_ac()
 
-        
-        #return self.multimeter.query("*OPC?")        
+        return self.get_id()
     
