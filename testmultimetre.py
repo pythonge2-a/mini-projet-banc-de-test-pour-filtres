@@ -9,21 +9,30 @@ multimeter.connect()
 
 print("ID du multimètre :")
 print(multimeter.get_id())
-print("measure",multimeter.get_measure())
-print("measure v dc", multimeter.get_measure_v_dc())
 
-print("measures v ac")
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
-print(multimeter.get_measure_v_ac())
+if multimeter.dcIsReady() is not None:
+    print("DC ready, measures :")
+
+    print(multimeter.get_measure_v_dc())
+    print(multimeter.get_measure_v_dc())
+    print(multimeter.get_measure_v_dc())
+    print(multimeter.get_measure_v_dc())
+    print(multimeter.get_measure_v_dc())
+    
+if multimeter.acIsReady() is not None:
+    print("AC ready, measures :")
+
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
+    print(multimeter.get_measure_v_ac())
 
 
 multimeter.disconnect()

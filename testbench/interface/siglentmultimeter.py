@@ -97,8 +97,27 @@ class SiglentSDM3065X:
             raise ConnectionError("Pas de connexion établie.")
         
         #makes sure the multimeter is in vac mode
-        get_measure_v_ac()
-        get_measure_v_ac()
+        try:
+            self.get_measure_v_ac()
+        except:
+            pass
+
+        self.get_measure_v_ac()
+
+        return self.get_id()
+    
+    def dcIsReady(self):
+        """Check if multimeter is ready."""
+        if not self.isconnected:
+            raise ConnectionError("Pas de connexion établie.")
+        
+        #makes sure the multimeter is in vdc mode
+        try:
+            self.get_measure_v_dc()
+        except:
+            pass
+
+        self.get_measure_v_dc()
 
         return self.get_id()
     
