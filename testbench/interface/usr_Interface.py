@@ -136,6 +136,7 @@ class MainFrame(wx.Frame):
     # fonction de la page de résultats de test lancée apres pression du bouton (avec bare de chargement et affichage des résultats) 
     def test_results(self):
         """Afficher la page de résultats de test."""
+
         # Créer une nouvelle fenêtre
         result_frame = wx.Frame(parent=None, title='Test Results', size=(400, 550))
         panel = wx.Panel(result_frame)
