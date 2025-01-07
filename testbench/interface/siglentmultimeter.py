@@ -92,5 +92,16 @@ class SiglentSDM3065X:
             measure = self.get_measure_v_ac()
         with open(filename, "a") as file:
             file.writerows(measure)
-            
+
+    def isReady(self):
+        """Check if multimeter is ready."""
+        if not self.isconnected:
+            raise ConnectionError("Pas de connexion établie.")
+        
+        #makes sure the multimeter is in vac mode
+        get_measure_v_ac()
+        get_measure_v_ac()
+
+        
+        #return self.multimeter.query("*OPC?")        
     
