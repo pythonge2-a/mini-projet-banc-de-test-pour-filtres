@@ -79,6 +79,31 @@ class Mesure:
         except VisaIOError as e:
             print(f"Erreur lors de la mesure de phase : {e}")
             return None
+    
+    def mesure_frequence(self):
+        # Mesure the frequency of the signal on Ch1
+        if not self.scope:
+            print("Oscilloscope non connecté.")
+            return None
+
+        try:
+            # Configuration de la mesure de fréquence
+            self.scope.write('MEASUrement:MEAS4:SOURCE CH1')
+            self.scope.write('MEASUrement:MEAS4:TYPE FREQuency')
+            self.scope.write('MEASUrement:MEAS4:STATE ON')
+
+            # Autoscale pour ajuster l'affichage
+            self.scope.write('AUTOSCALE')
+
+            # Récupération de la valeur de fréquence
+            freq = float(self.scope.query('MEASUrement:MEAS4:VALue?'))
+
+            # Suppression de la mesure
+            self.scope.write('MEASUrement:MEAS4:STATE OFF')
+
+            return freq
+        except VisaIOError as e:
+            print(f"Erreur lors de la mesure de fréquence : {e}")
 
     def deconnecter(self):
         # Close the connection
