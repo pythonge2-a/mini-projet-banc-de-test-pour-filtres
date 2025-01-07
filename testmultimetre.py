@@ -6,8 +6,21 @@ print("Test du multimètre Siglent SDM3065X")
 
 multimeter = SiglentSDM3065X(ip_test_lab_multimeter)
 multimeter.connect()
+
+print("ID du multimètre :")
 print(multimeter.get_id())
-print(multimeter.get_measure())
-print(multimeter.get_measure_v_dc())
+print("measure",multimeter.get_measure())
+print("measure v dc", multimeter.get_measure_v_dc())
+print("measure v ac")
 print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+print(multimeter.get_measure_v_ac())
+
+
 multimeter.disconnect()

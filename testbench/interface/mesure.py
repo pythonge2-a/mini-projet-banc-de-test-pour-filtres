@@ -1,0 +1,3 @@
+from siglentmultimeter import SiglentSDM3065X
+from Agilent_GenFct import Agilent33220A
+from tek_scope import TektronixMSO4104B
