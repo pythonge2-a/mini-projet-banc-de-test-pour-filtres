@@ -91,7 +91,7 @@ class SiglentSDM3065X:
         with open(filename, "a") as file:
             file.writerows(measure)
 
-    def acIsReady(self):
+    def dcChangeMode(self):
         """Check if multimeter is ready."""
         if not self.isconnected:
             raise ConnectionError("Pas de connexion établie.")
@@ -106,7 +106,7 @@ class SiglentSDM3065X:
 
         return self.get_id()
     
-    def dcIsReady(self):
+    def AcChangeMode(self):
         """Check if multimeter is ready."""
         if not self.isconnected:
             raise ConnectionError("Pas de connexion établie.")
