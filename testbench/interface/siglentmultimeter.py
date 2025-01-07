@@ -29,7 +29,7 @@ class SiglentSDM3065X:
             self.multimeter.close()
             self.resourceManager.close()
             self.isconnected = False
-            print("Connexion terminée.")
+            print("Connexion terminée avec le multimetre.")
 
     
     def get_id(self):
@@ -91,7 +91,7 @@ class SiglentSDM3065X:
         with open(filename, "a") as file:
             file.writerows(measure)
 
-    def isReady(self):
+    def acIsReady(self):
         """Check if multimeter is ready."""
         if not self.isconnected:
             raise ConnectionError("Pas de connexion établie.")
