@@ -69,21 +69,3 @@ class Agilent33220A:
     def get_offset(self):
         """Lit l'offset du signal."""
         return self.functionGenerator.query("VOLTAGE:OFFSET?")
-    
-
-
-# Genfct = Agilent33220A("10.192.79.15")
-# Genfct.connect()
-# print(Genfct.get_id())
-# Genfct.set_amplitude(18)
-# Genfct.set_frequency(30000000)
-# Genfct.set_waveform("SIN")
-# Genfct.set_offset(1)
-# Genfct.ActiveOutput()
-# print(Genfct.get_amplitude())
-# print(Genfct.get_frequency())
-# print(Genfct.get_waveform())
-# print(Genfct.get_offset())
-# print(Genfct.get_output_status())
-
-
