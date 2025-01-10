@@ -10,7 +10,7 @@ multimeter.connect()
 print("ID du multimètre :")
 print(multimeter.get_id())
 
-if multimeter.dcIsReady() is not None:
+if multimeter.VdcChangeMode() is not None:
     print("DC ready, measures :")
 
     print(multimeter.get_measure_v_dc())
@@ -18,8 +18,10 @@ if multimeter.dcIsReady() is not None:
     print(multimeter.get_measure_v_dc())
     print(multimeter.get_measure_v_dc())
     print(multimeter.get_measure_v_dc())
+else:
+    print("DC not ready")
     
-if multimeter.acIsReady() is not None:
+if multimeter.VacChangeMode() is not None:
     print("AC ready, measures :")
 
     print(multimeter.get_measure_v_ac())
@@ -33,6 +35,8 @@ if multimeter.acIsReady() is not None:
     print(multimeter.get_measure_v_ac())
     print(multimeter.get_measure_v_ac())
     print(multimeter.get_measure_v_ac())
+else:
+    print("AC not ready")
 
 
 multimeter.disconnect()
