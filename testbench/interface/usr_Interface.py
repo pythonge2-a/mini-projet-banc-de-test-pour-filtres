@@ -1,6 +1,10 @@
 # fichier de gestion de l'interface utilisateur
 
 import wx
+import matplotlib
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.figure import Figure
+import numpy as np
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -90,6 +94,9 @@ class MainFrame(wx.Frame):
         button = wx.Button(panel, label='Start Test', pos=(130, y_pos + 90), size=(140, 40))
         button.Bind(wx.EVT_BUTTON, self.on_button_click)
 
+
+        self.test_results()
+
         # Affichage de la fenêtre
         self.Show()
 
@@ -177,7 +184,7 @@ class MainFrame(wx.Frame):
             amplitude = self.get_amplitude()
             ip_addresses = self.get_ip_addresses()
 
-            # Afficher les configurations dans la console
+            # Afficher les configurations dans la console fois les unités converties
             print("Configuration Summary:")
             print(f"Min Frequency: {min_freq} Hz")
             print(f"Max Frequency: {max_freq} Hz")
@@ -201,28 +208,66 @@ class MainFrame(wx.Frame):
     # fonction de la page de résultats de test lancée apres pression du bouton (avec bare de chargement et affichage des résultats) 
     def test_results(self):
         """Afficher la page de résultats de test."""
-
         # Créer une nouvelle fenêtre
-        result_frame = wx.Frame(parent=None, title='Test Results', size=(400, 550))
+        result_frame = wx.Frame(parent=None, title='Test Results', size=(1000, 700))
         panel = wx.Panel(result_frame)
 
         # Barre de chargement
         gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
-        gauge.SetValue(5)
+        gauge.SetValue(100)
 
-        # Afficher les résultats
-        result_text = wx.StaticText(panel, label='Test Results:', pos=(20, 60))
-        font = result_text.GetFont()
-        font.SetPointSize(11)
-        font.SetWeight(wx.FONTWEIGHT_BOLD)
-        result_text.SetFont(font)
+        # --- Afficher les résultats du test ---
 
-        # Afficher les résultats dans un texte
-        results = "Results will be displayed here."
-        results_text = wx.TextCtrl(panel, value=results, pos=(20, 90), size=(360, 400), style=wx.TE_MULTILINE | wx.TE_READONLY)
+        # Récupération des données d'amplitudes et de phases ##### PUREMENT POUR TEST #####
+        amplitude = [(1, 1000), (2, 10000), (3, 100000), (4, 1000000), (5, 10000000), (6, 100000000)]
+        phase = [(1, 1000), (1.5, 10000), (2, 100000), (2.5, 1000000), (3, 10000000), (3.5, 100000000)]
+
+        # Convertir les données pour affichage
+        amp_y, amp_x = zip(*amplitude)
+        phase_y, phase_x = zip(*phase)
+
+        # Mettre à jour la barre de chargement à 50%
+        gauge.SetValue(50)
+
+        # Créer un graphique matplotlib
+        figure = Figure(figsize=(6, 4))
+        ax1 = figure.add_subplot(211)
+        ax2 = figure.add_subplot(212)
+        figure.subplots_adjust(hspace=0.5)
+
+        # Tracer le graphique logarithmique pour amplitude
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+        ax1.plot(amp_x, amp_y, marker='o', color='blue', label='Amplitude')
+        ax1.set_title('Amplitude (Log-Log)')
+        ax1.set_xlabel('Frequency (Hz)')
+        ax1.set_ylabel('Amplitude')
+        ax1.legend()
+        ax1.grid(True, which='both', linestyle='--')
+
+        # Tracer le graphique logarithmique pour phase
+        ax2.set_xscale('log')
+        ax2.plot(phase_x, phase_y, marker='s', color='green', label='Phase')
+        ax2.set_title('Phase (Semi-Log)')
+        ax2.set_xlabel('Frequency (Hz)')
+        ax2.set_ylabel('Phase (degrees)')
+        ax2.legend()
+        ax2.grid(True, which='both', linestyle='--')
+
+        # Intégrer matplotlib dans wxPython
+        canvas = FigureCanvas(panel, -1, figure)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(gauge, 0, wx.ALL | wx.EXPAND, 10)
+        sizer.Add(canvas, 1, wx.ALL | wx.EXPAND, 10)
+        panel.SetSizer(sizer)
+
+        # Mettre à jour la barre de chargement à 100%
+        gauge.SetValue(100)
 
         # Afficher la fenêtre
         result_frame.Show()
+
+
 
 if __name__ == '__main__':
     app = wx.App(False)
