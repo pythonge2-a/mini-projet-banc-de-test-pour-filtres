@@ -11,7 +11,7 @@ class Mesure:
             self.scope = self.rm.open_resource(f'TCPIP::{ip}::INSTR')
             print("Connecté à :", self.scope.query('*IDN?'))
             self.scope.write('*RST')  # Réinitialise l'oscilloscope
-            time.sleep(2)
+            time.sleep(1)
 
             # Activation des canaux CH1 et CH2
             self.scope.write('SELect:CH1 ON')
@@ -19,14 +19,13 @@ class Mesure:
 
             # Acquisition en cours
             self.scope.write('ACQuire:STATE RUN')
-            time.sleep(1)
 
         except VisaIOError as e:
             print(f"Erreur de connexion à l'oscilloscope : {e}")
             self.scope = None
 
     def rescale_channels(self):
-        """ Ajuste automatiquement l'échelle des canaux CH1 et CH2 """
+        # Rescale the channels to 1/4 of the peak-to-peak value for a better display
         try:
             self.scope.write('MEASUrement:IMMed:TYPe PK2pk')  # Peak-to-peak
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
@@ -37,7 +36,7 @@ class Mesure:
             time.sleep(1)
             pk2pk2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
 
-            # Définition de l'échelle (1/4 de la valeur peak-to-peak pour un bon affichage)
+            # Define the scale of the channels
             if pk2pk1 > 0:
                 self.scope.write(f'CH1:SCAle {pk2pk1 / 4}')
             if pk2pk2 > 0:
@@ -55,19 +54,18 @@ class Mesure:
             return None
 
         try:
-            self.rescale_channels()  # Ajustement de l'échelle avant la mesure
-
             self.scope.write('MEASUrement:IMMed:TYPe CRMS')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            time.sleep(2)
+            time.sleep(1)
             rms1 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
 
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH2')
-            time.sleep(2)
+            time.sleep(1)
             rms2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
 
-            if rms1 <= 0:
-                print("Valeur RMS de CH1 invalide (0 ou négative), impossible de calculer le gain.")
+            # Check if the rms1 is not null
+            if rms1 == 0:
+                print("Erreur : le gain ne peut pas être calculé si la valeur de référence est nulle.")
                 return None
 
             gain = rms2 / rms1
@@ -83,8 +81,6 @@ class Mesure:
             return None
 
         try:
-            self.rescale_channels()  # Ajustement de l'échelle avant la mesure
-
             self.scope.write('MEASUrement:IMMed:TYPe PHASE')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
             self.scope.write('MEASUrement:IMMed:SOUrce2 CH2')
@@ -103,8 +99,6 @@ class Mesure:
             return None
 
         try:
-            self.rescale_channels()  # Ajustement de l'échelle avant la mesure
-
             self.scope.write('MEASUrement:IMMed:TYPe FREQuency')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
             time.sleep(2)
@@ -127,8 +121,16 @@ class Mesure:
 if __name__ == '__main__':
     ip = '10.192.79.8'
 
+    # Connect to the oscilloscope
     mesure = Mesure(ip)
 
+    # Compteur the time of the measurement
+    start = time.time()
+
+    # Rescale the channels
+    mesure.rescale_channels()
+
+    # Measure gain, phase and frequency
     gain = mesure.mesure_gain()
     if gain is not None:
         print(f"Gain : {gain}")
@@ -141,4 +143,8 @@ if __name__ == '__main__':
     if freq is not None:
         print(f"Fréquence : {freq} Hz")
 
+    # Print the time of the measurement
+    print(f"Temps de mesure : {time.time() - start} s")
+
+    # Disconnect from the oscilloscope
     mesure.deconnecter()
