@@ -144,7 +144,7 @@ if __name__ == '__main__':
         print(f"Fréquence : {freq} Hz")
 
     # Print the time of the measurement
+    print(f"Temps de mesure : {time.time() - start} s")
     
-
     # Disconnect from the oscilloscope
     mesure.deconnecter()
