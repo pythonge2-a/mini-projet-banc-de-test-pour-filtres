@@ -2,10 +2,8 @@ import pyvisa
 from pyvisa import VisaIOError
 import time
 
-# Classe Mesure pour l'oscilloscope
 class Mesure:
     def __init__(self, ip):
-        # Init the ip and the resource manager
         self.ip = ip
         self.rm = pyvisa.ResourceManager()
 
@@ -13,76 +11,112 @@ class Mesure:
             self.scope = self.rm.open_resource(f'TCPIP::{ip}::INSTR')
             print("Connecté à :", self.scope.query('*IDN?'))
             self.scope.write('*RST')  # Réinitialise l'oscilloscope
+            time.sleep(2)
+
+            # Activation des canaux CH1 et CH2
+            self.scope.write('SELect:CH1 ON')
+            self.scope.write('SELect:CH2 ON')
+
+            # Acquisition en cours
+            self.scope.write('ACQuire:STATE RUN')
+            time.sleep(1)
+
         except VisaIOError as e:
             print(f"Erreur de connexion à l'oscilloscope : {e}")
             self.scope = None
 
+    def rescale_channels(self):
+        """ Ajuste automatiquement l'échelle des canaux CH1 et CH2 """
+        try:
+            self.scope.write('MEASUrement:IMMed:TYPe PK2pk')  # Peak-to-peak
+            self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
+            time.sleep(1)
+            pk2pk1 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+
+            self.scope.write('MEASUrement:IMMed:SOUrce1 CH2')
+            time.sleep(1)
+            pk2pk2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+
+            # Définition de l'échelle (1/4 de la valeur peak-to-peak pour un bon affichage)
+            if pk2pk1 > 0:
+                self.scope.write(f'CH1:SCAle {pk2pk1 / 4}')
+            if pk2pk2 > 0:
+                self.scope.write(f'CH2:SCAle {pk2pk2 / 4}')
+
+            print("Canaux rescalés")
+            time.sleep(1)  # Attente après le rescale
+
+        except VisaIOError as e:
+            print(f"Erreur lors du rescale des canaux : {e}")
+
     def mesure_gain(self):
-        # Mesure le gain entre CH1 et CH2
         if not self.scope:
             print("Oscilloscope non connecté.")
             return None
 
         try:
-            self.scope.write('MEASUrement:IMMed:TYPe PK2pk')
-            
-            # Configuration et lecture pour CH1
-            self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            time.sleep(2)  # Attente pour stabilisation
-            pik1 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            self.rescale_channels()  # Ajustement de l'échelle avant la mesure
 
-            # Configuration et lecture pour CH2
+            self.scope.write('MEASUrement:IMMed:TYPe CRMS')
+            self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
+            time.sleep(2)
+            rms1 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH2')
             time.sleep(2)
-            pik2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            rms2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
 
-            if pik1 <= 0:
-                print("Valeur du canal 1 invalide (0 ou négative).")
+            if rms1 <= 0:
+                print("Valeur RMS de CH1 invalide (0 ou négative), impossible de calculer le gain.")
                 return None
 
-            gain = pik2 / pik1
+            gain = rms2 / rms1
             return gain
+
         except VisaIOError as e:
             print(f"Erreur lors de la mesure du gain : {e}")
             return None
 
     def mesure_phase(self):
-        # Mesure la phase entre CH1 et CH2
         if not self.scope:
             print("Oscilloscope non connecté.")
             return None
 
         try:
+            self.rescale_channels()  # Ajustement de l'échelle avant la mesure
+
             self.scope.write('MEASUrement:IMMed:TYPe PHASE')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
             self.scope.write('MEASUrement:IMMed:SOUrce2 CH2')
-            time.sleep(2)  # Attente pour stabilisation
+            time.sleep(2)
 
             phase = float(self.scope.query('MEASUrement:IMMed:VALue?'))
             return phase
+
         except VisaIOError as e:
             print(f"Erreur lors de la mesure de phase : {e}")
             return None
 
     def mesure_frequence(self):
-        # Mesure la fréquence du signal sur CH1
         if not self.scope:
             print("Oscilloscope non connecté.")
             return None
 
         try:
+            self.rescale_channels()  # Ajustement de l'échelle avant la mesure
+
             self.scope.write('MEASUrement:IMMed:TYPe FREQuency')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            time.sleep(2)  # Attente pour stabilisation
+            time.sleep(2)
 
             freq = float(self.scope.query('MEASUrement:IMMed:VALue?'))
             return freq
+
         except VisaIOError as e:
             print(f"Erreur lors de la mesure de fréquence : {e}")
             return None
 
     def deconnecter(self):
-        # Fermeture de la connexion
         if self.scope:
             self.scope.close()
             print("Connexion fermée.")
@@ -91,25 +125,20 @@ class Mesure:
 
 # Exemple d'utilisation
 if __name__ == '__main__':
-    ip = '10.192.79.79'
+    ip = '10.192.79.8'
 
-    # Création de l'objet Mesure
     mesure = Mesure(ip)
 
-    # Mesure du gain
     gain = mesure.mesure_gain()
     if gain is not None:
         print(f"Gain : {gain}")
 
-    # Mesure de la phase
     phase = mesure.mesure_phase()
     if phase is not None:
         print(f"Phase : {phase}")
 
-    # Mesure de la fréquence
     freq = mesure.mesure_frequence()
     if freq is not None:
         print(f"Fréquence : {freq} Hz")
 
-    # Déconnexion
     mesure.deconnecter()
