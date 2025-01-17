@@ -229,16 +229,20 @@ class MainFrame(wx.Frame):
         gauge = self.FindWindowById(1)
         gauge.SetValue(progress)
     
-    # fonction de la page de résultats de test lancée apres pression du bouton (avec bare de chargement et affichage des résultats) 
     def test_results(self):
         """Afficher la page de résultats de test."""
-        # Créer une nouvelle fenêtre
-        result_frame = wx.Frame(parent=None, title='Test Results', size=(1000, 700))
-        panel = wx.Panel(result_frame)
 
+        # ------------ Créer une page de résultats ------------
+
+        # Créer une nouvelle fenêtre
+        result_frame = wx.Frame(parent=None, title='Test Results', size=(1000, 800))
+        panel = wx.Panel(result_frame)
         # Barre de chargement
         gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
-        gauge.SetValue(100)
+        gauge.SetValue(10)
+
+
+        # ------------ Séquence de test ------------
 
         ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
         try:
@@ -282,12 +286,20 @@ class MainFrame(wx.Frame):
         amplitude = [(x, y) for x, y in zip(amp_x, amp_y) if y is not None]
         phase = [(x, y) for x, y in zip(phase_x, phase_y) if y is not None]
 
+        # ------------ traitement des données de test ------------
+
+        # Résultats calculés (simulés ici pour l'exemple)
+        results = {
+            'frequence_coupure': [1500],
+            'facteur_qualite': 1.2,
+            'ordre': 2
+        }
+
         # Convertir les données pour affichage
         amp_y, amp_x = zip(*amplitude)
         phase_y, phase_x = zip(*phase)
 
-        # Mettre à jour la barre de chargement à 50%
-        gauge.SetValue(50)
+        # ------------ affichage des données de test ------------
 
         # Créer un graphique matplotlib
         figure = Figure(figsize=(6, 4))
@@ -316,16 +328,53 @@ class MainFrame(wx.Frame):
 
         # Intégrer matplotlib dans wxPython
         canvas = FigureCanvas(panel, -1, figure)
+
+        # Ajouter les résultats en texte
+        results_text = (
+            f"Fréquences de coupure : {', '.join([f'{fc} Hz' for fc in results['frequence_coupure']])}\n"
+            f"Facteur de qualité (Q) : {results['facteur_qualite']}\n"
+            f"Ordre du filtre : {results['ordre']}\n"
+            f"Nombre de points : {self.get_points_config()}"
+        )
+
+        results_label = wx.StaticText(panel, label=results_text, pos=(20, 40))
+
+        # Appliquer un style au texte (augmenter la taille et le rendre gras)
+        font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        results_label.SetFont(font)
+
+        # Ajuster la mise en page
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(gauge, 0, wx.ALL | wx.EXPAND, 10)
         sizer.Add(canvas, 1, wx.ALL | wx.EXPAND, 10)
+        sizer.Add(results_label, 0, wx.ALL | wx.EXPAND, 10)
+        sizer.Add(restart_button, 0, wx.ALL | wx.CENTER, 10)
         panel.SetSizer(sizer)
 
-        # Mettre à jour la barre de chargement à 100%
-        gauge.SetValue(100)
+        # ------------ bouton de redémarrage du test ------------
+    
+        # Ajouter un bouton "Restart Test" avec une taille plus grande
+        restart_button = wx.Button(panel, label='Restart Other Test', size=(180, 40), pos=(400, 550))
+    
+        # Appliquer une police en gras au bouton
+        button_font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        restart_button.SetFont(button_font)
+    
+        # Lier l'événement du bouton
+        restart_button.Bind(wx.EVT_BUTTON, self.restart_test)
 
         # Afficher la fenêtre
         result_frame.Show()
+
+    def restart_test(self, event):
+        """Redémarrer le test en fermant la fenêtre actuelle et rouvrant la configuration principale."""
+        # Fermer toutes les fenêtres ouvertes (page de résultats)
+        for child in wx.GetTopLevelWindows():
+            if isinstance(child, wx.Frame) and child.GetTitle() == 'Test Results':
+                    child.Destroy()
+
+        # Rouvrir la fenêtre principale (optionnel, selon besoin)
+        self.Show()
 
 
 

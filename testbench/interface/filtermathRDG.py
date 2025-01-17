@@ -42,6 +42,8 @@ def get_order(data):
 
     if cutfreq is None:
         raise ValueError("Cutoff frequency is not found")
+    
+    cutfreq = round(cutfreq, 0)
 
     if data[cutfreq/10] < 5 : 
         if -19 > data[10*cutfreq] > -25:
