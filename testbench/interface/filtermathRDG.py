@@ -48,7 +48,7 @@ def get_order(data):
             return 1
         elif -39 > data[10*cutfreq] > -45:
             return 2
-        elif -58 > data[10*cutfreq] > -62:
+        elif -58 > data[10*cutfreq] > -65:
             return 3
         else :
             return None
@@ -57,7 +57,7 @@ def get_order(data):
             return 1
         elif -39 > data[cutfreq/10] > -45:
             return 2
-        elif -58 > data[cutfreq/10] > -62:
+        elif -58 > data[cutfreq/10] > -65:
             return 3
         else :
             return None
