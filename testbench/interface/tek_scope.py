@@ -2,7 +2,7 @@ import pyvisa
 from pyvisa import VisaIOError
 import time
 
-class Mesure:
+class Tektronix_scope:
     def __init__(self, ip):
         self.ip = ip
         self.rm = pyvisa.ResourceManager()
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     ip = '10.192.79.8'
 
     # Connect to the oscilloscope
-    mesure = Mesure(ip)
+    mesure = Tektronix_scope(ip)
 
     # Compteur the time of the measurement
     start = time.time()
