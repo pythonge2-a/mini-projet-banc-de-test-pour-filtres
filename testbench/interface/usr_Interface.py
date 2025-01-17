@@ -5,6 +5,11 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+import time
+
+import tek_scope
+import Agilent_GenFct
+import siglentmultimeter
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -235,11 +240,47 @@ class MainFrame(wx.Frame):
         gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
         gauge.SetValue(100)
 
-        # --- Afficher les résultats du test ---
+        ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
+        try:
+            ip_addresses = self.get_ip_addresses()
+            function_gen = Agilent_GenFct.AgilentGenFct(ip_addresses['Générateur de fonction'])
+            function_gen.connect()
+            function_gen.set_amplitude(self.get_amplitude())
+            function_gen.set_waveform('SIN')
+            function_gen.ActiveOutput()
 
-        # Récupération des données d'amplitudes et de phases ##### PUREMENT POUR TEST #####
-        amplitude = [(1, 1000), (2, 10000), (3, 100000), (4, 1000000), (5, 10000000), (6, 100000000)]
-        phase = [(1, 1000), (1.5, 10000), (2, 100000), (2.5, 1000000), (3, 10000000), (3.5, 100000000)]
+            scope = tek_scope.TekScope(ip_addresses['Oscilloscope'])
+            scope.connect()
+
+            min_freq, max_freq = self.get_frequency_config()
+            points = self.get_points_config()
+            amp_x, amp_y, phase_x, phase_y = [], [], [], []
+
+            for i in range(points):
+                freq = min_freq + (max_freq - min_freq) * i / (points - 1)
+                function_gen.set_frequency(freq)
+                time.sleep(0.1)
+                freq_mes = scope.mesure_frequence()
+                amp_x.append(freq_mes)
+                amp_y.append(scope.mesure_gain())
+                phase_x.append(freq_mes)
+                phase_y.append(scope.mesure_phase())
+                wx.CallAfter(gauge.SetValue, int((i + 1) / points * 100))
+
+            ax1.set_xscale('log')
+            ax1.plot(amp_x, amp_y, 'bo-', label='Amplitude')
+            ax1.grid(True, which='both', linestyle='--')
+
+            ax2.set_xscale('log')
+            ax2.plot(phase_x, phase_y, 'gs-', label='Phase')
+            ax2.grid(True, which='both', linestyle='--')
+        finally:
+            if scope: scope.disconnect()
+            if function_gen: function_gen.disconnect()
+
+        # Récupération des données de gain et de phase
+        amplitude = [(x, y) for x, y in zip(amp_x, amp_y) if y is not None]
+        phase = [(x, y) for x, y in zip(phase_x, phase_y) if y is not None]
 
         # Convertir les données pour affichage
         amp_y, amp_x = zip(*amplitude)
