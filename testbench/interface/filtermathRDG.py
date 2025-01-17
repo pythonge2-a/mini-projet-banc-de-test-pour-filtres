@@ -21,13 +21,46 @@ def formulate_data_single_Vin(freqs, vin, vs_out):
 
 def get_cutoff_frequency(data):
     """Return cut off frequency (-3 dB) from dictionary."""
+    if not isinstance(data, dict):
+        raise TypeError("Data must be a dictionary")
+    
     for freq, gain in data.items():
-        if gain < -3:
-            return freq
-    for freq, gain in data.items():
-        if round(gain, 3) < -3:
+        if round(gain, 0) == -3:
             return freq
     return None
+
+def get_order(data):
+    """Return order of the filter."""
+
+    if not isinstance(data, dict):
+        raise TypeError("Data must be a dictionary")
+
+    if data == None:
+        raise ValueError("No data found")
+    
+    cutfreq = get_cutoff_frequency(data)
+
+    if cutfreq is None:
+        raise ValueError("Cutoff frequency is not found")
+
+    if data[cutfreq/10] < 5 : 
+        if -19 > data[10*cutfreq] > -25:
+            return 1
+        elif -39 > data[10*cutfreq] > -45:
+            return 2
+        elif -58 > data[10*cutfreq] > -62:
+            return 3
+        else :
+            return None
+    else:
+        if -19 > data[cutfreq/10] > -25:
+            return 1
+        elif -39 > data[cutfreq/10] > -45:
+            return 2
+        elif -58 > data[cutfreq/10] > -62:
+            return 3
+        else :
+            return None
 
 def plot_gain(data):
     """Plot response of the filter."""
