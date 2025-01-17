@@ -49,7 +49,7 @@ class MainFrame(wx.Frame):
         wx.StaticText(panel, label='Number of Points:', pos=(20, 140))
         self.points_ctrl = wx.TextCtrl(panel, pos=(180, 138), size=(100, -1))
         # unités, kilo, mega, giga pour le nombre de points
-        self.unitPoint = wx.ComboBox(panel, pos=(300, 138), choices=['', 'k', 'M', 'G'], style=wx.CB_READONLY)
+        self.unitPoint = wx.ComboBox(panel, pos=(300, 138), choices=['-', 'k', 'M', 'G'], style=wx.CB_READONLY)
         self.unitPoint.SetSelection(0)
 
         # ---- Configuration de l'amplitude ----
@@ -93,9 +93,6 @@ class MainFrame(wx.Frame):
         # Bouton : Start test
         button = wx.Button(panel, label='Start Test', pos=(130, y_pos + 90), size=(140, 40))
         button.Bind(wx.EVT_BUTTON, self.on_button_click)
-
-
-        self.test_results()
 
         # Affichage de la fenêtre
         self.Show()
@@ -177,6 +174,28 @@ class MainFrame(wx.Frame):
 
     def on_button_click(self, event):
         """Récupérer et afficher les configurations si toutes les valeurs sont spécifiées."""
+
+        # Vérifier si les valeurs entrées sont entre 0 et 9 et . pour les champs min et max fréquence
+        if not self.min_freq_ctrl.GetValue().replace('.','').isdigit() or not self.max_freq_ctrl.GetValue().replace('.','').isdigit():
+            wx.MessageBox('Please enter only numbers for frequency.', 'Error', wx.OK | wx.ICON_ERROR)
+            return
+
+        # Vérifier si les valeurs entrées sont entre 0 et 9 et . pour lee champ nombre de points
+        if not self.points_ctrl.GetValue().replace('.','').isdigit():
+            wx.MessageBox('Please enter only numbers for number of points.', 'Error', wx.OK | wx.ICON_ERROR)
+            return
+
+        # Vérifier si les valeurs entrées sont entre 0 et 9 et . pour le champ amplitude
+        if not self.amp_ctrl.GetValue().replace('.','').isdigit():
+            wx.MessageBox('Please enter only numbers for amplitude.', 'Error', wx.OK | wx.ICON_ERROR)
+            return
+
+        # Vérifier si les valeurs entrées sont entre 0 et 9 et . pour les champs IP
+        for device, ctrl in self.ip_controls.items():
+            if not ctrl.GetValue().replace('.','').isdigit():
+                wx.MessageBox('Please enter only numbers for IP addresses.', 'Error', wx.OK | wx.ICON_ERROR)
+                return   
+
         if not self.validate_inputs():
             wx.MessageBox('Please specify all configuration values.', 'Error', wx.OK | wx.ICON_ERROR)
         else:
