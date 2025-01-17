@@ -5,6 +5,11 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+import time
+
+import tek_scope
+import Agilent_GenFct
+import siglentmultimeter
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -226,55 +231,62 @@ class MainFrame(wx.Frame):
     
     def test_results(self):
         """Afficher la page de résultats de test."""
+
+        # ------------ Créer une page de résultats ------------
+
         # Créer une nouvelle fenêtre
         result_frame = wx.Frame(parent=None, title='Test Results', size=(1000, 800))
         panel = wx.Panel(result_frame)
-
         # Barre de chargement
         gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
         gauge.SetValue(10)
 
+
         # ------------ Séquence de test ------------
 
+        ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
+        try:
+            ip_addresses = self.get_ip_addresses()
+            function_gen = Agilent_GenFct.AgilentGenFct(ip_addresses['Générateur de fonction'])
+            function_gen.connect()
+            function_gen.set_amplitude(self.get_amplitude())
+            function_gen.set_waveform('SIN')
+            function_gen.ActiveOutput()
 
-        # ------------ Récupération des données d'amplitude et de phase ------------
+            scope = Mesure()
+            scope.connect()
 
+            min_freq, max_freq = self.get_frequency_config()
+            points = self.get_points_config()
+            amp_x, amp_y, phase_x, phase_y = [], [], [], []
 
-        # ------------ affichage des données de test ------------
+            for i in range(points):
+                freq = min_freq + (max_freq - min_freq) * i / (points - 1)
+                function_gen.set_frequency(freq)
+                time.sleep(0.1)
+                freq_mes = scope.mesure_frequence()
+                amp_x.append(freq_mes)
+                amp_y.append(scope.mesure_gain())
+                phase_x.append(freq_mes)
+                phase_y.append(scope.mesure_phase())
+                wx.CallAfter(gauge.SetValue, int((i + 1) / points * 100))
 
+            ax1.set_xscale('log')
+            ax1.plot(amp_x, amp_y, 'bo-', label='Amplitude')
+            ax1.grid(True, which='both', linestyle='--')
 
-        # ------------ bouton de redémarrage du test ------------
-    
-        # Ajouter un bouton "Restart Test" avec une taille plus grande
-        restart_button = wx.Button(panel, label='Restart Other Test', size=(180, 40), pos=(400, 550))
-    
-        # Appliquer une police en gras au bouton
-        button_font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-        restart_button.SetFont(button_font)
-    
-        # Lier l'événement du bouton
-        restart_button.Bind(wx.EVT_BUTTON, self.restart_test)
+            ax2.set_xscale('log')
+            ax2.plot(phase_x, phase_y, 'gs-', label='Phase')
+            ax2.grid(True, which='both', linestyle='--')
+        finally:
+            if scope: scope.disconnect()
+            if function_gen: function_gen.disconnect()
 
+        # Récupération des données de gain et de phase
+        amplitude = [(x, y) for x, y in zip(amp_x, amp_y) if y is not None]
+        phase = [(x, y) for x, y in zip(phase_x, phase_y) if y is not None]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # Données simulées pour l'exemple
-        amplitude = [(1, 1000), (2, 10000), (3, 100000), (4, 1000000), (5, 10000000), (6, 100000000)]
-        phase = [(1, 1000), (1.5, 10000), (2, 100000), (2.5, 1000000), (3, 10000000), (3.5, 100000000)]
+        # ------------ traitement des données de test ------------
 
         # Résultats calculés (simulés ici pour l'exemple)
         results = {
@@ -287,8 +299,7 @@ class MainFrame(wx.Frame):
         amp_y, amp_x = zip(*amplitude)
         phase_y, phase_x = zip(*phase)
 
-        # Mettre à jour la barre de chargement à 50%
-        gauge.SetValue(50)
+        # ------------ affichage des données de test ------------
 
         # Créer un graphique matplotlib
         figure = Figure(figsize=(6, 4))
@@ -340,8 +351,17 @@ class MainFrame(wx.Frame):
         sizer.Add(restart_button, 0, wx.ALL | wx.CENTER, 10)
         panel.SetSizer(sizer)
 
-        # Mettre à jour la barre de chargement à 100%
-        gauge.SetValue(100)
+        # ------------ bouton de redémarrage du test ------------
+    
+        # Ajouter un bouton "Restart Test" avec une taille plus grande
+        restart_button = wx.Button(panel, label='Restart Other Test', size=(180, 40), pos=(400, 550))
+    
+        # Appliquer une police en gras au bouton
+        button_font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        restart_button.SetFont(button_font)
+    
+        # Lier l'événement du bouton
+        restart_button.Bind(wx.EVT_BUTTON, self.restart_test)
 
         # Afficher la fenêtre
         result_frame.Show()
