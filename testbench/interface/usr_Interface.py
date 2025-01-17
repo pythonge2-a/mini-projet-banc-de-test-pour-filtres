@@ -253,7 +253,7 @@ class MainFrame(wx.Frame):
             function_gen.set_waveform('SIN')
             function_gen.ActiveOutput()
 
-            scope = Tektronix_scope(ip_addresses['Oscilloscope'])
+            scope = tek_scope.Tektronix_scope(ip_addresses['Oscilloscope'])
             scope.connect()
 
             min_freq, max_freq = self.get_frequency_config()

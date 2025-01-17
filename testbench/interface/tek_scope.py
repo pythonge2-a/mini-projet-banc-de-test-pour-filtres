@@ -27,6 +27,8 @@ class Tektronix_scope:
     def rescale_channels(self):
         # Rescale the channels to 1/4 of the peak-to-peak value for a better display
         try:
+            # Autoscale
+            self.scope.write('AUToscale')
             self.scope.write('MEASUrement:IMMed:TYPe PK2pk')  # Peak-to-peak
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
             time.sleep(1)
