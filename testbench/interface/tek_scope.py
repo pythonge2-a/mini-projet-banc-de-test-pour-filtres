@@ -24,28 +24,22 @@ class Tektronix_scope:
             print(f"Erreur de connexion à l'oscilloscope : {e}")
             self.scope = None
 
-    def rescale_channels(self):
-        # Rescale the channels to 1/4 of the peak-to-peak value for a better display
+    def rescale_channels(self, frequence, pk2pk):
         try:
-            # Autoscale
-            self.scope.write('AUToscale')
-            self.scope.write('MEASUrement:IMMed:TYPe PK2pk')  # Peak-to-peak
-            self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            time.sleep(1)
-            pk2pk1 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            # Calcul de l'échelle à partir de pk2pk
+            scale_value = pk2pk / 4  # Appliquer 1/4 de la valeur de crête-à-crête
 
-            self.scope.write('MEASUrement:IMMed:SOUrce1 CH2')
-            time.sleep(1)
-            pk2pk2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            # Ajuster les échelles des canaux en fonction de pk2pk
+            self.scope.write(f'CH1:SCAle {scale_value}')
+            self.scope.write(f'CH2:SCAle {scale_value}')
 
-            # Define the scale of the channels
-            if pk2pk1 > 0:
-                self.scope.write(f'CH1:SCAle {pk2pk1 / 4}')
-            if pk2pk2 > 0:
-                self.scope.write(f'CH2:SCAle {pk2pk2 / 4}')
+            print(f"Canaux rescalés : Échelle définie à {scale_value} V/div pour pk2pk = {pk2pk} V")
 
-            print("Canaux rescalés")
-            time.sleep(1)  # Attente après le rescale
+            # Ajuster l'échelle de temps en fonction de la fréquence
+            self.scope.write(f'TIMEBASE:SCAle {1 / frequence}')  # Par exemple, pour une fréquence de 1 Hz, l'échelle de temps est 1 seconde/div
+            print(f"Fréquence mise à jour : {frequence} Hz")
+
+            time.sleep(1)  # Attente après l'ajustement
 
         except VisaIOError as e:
             print(f"Erreur lors du rescale des canaux : {e}")

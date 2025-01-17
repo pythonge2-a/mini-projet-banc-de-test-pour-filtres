@@ -3,9 +3,10 @@ import testbench.interface.Agilent_GenFct as Agilent_GenFct
 import time
 
 ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
+pk2pk = 5
 function_gen = Agilent_GenFct.Agilent33220A('10.192.79.15')  # Use the correct class name here
 function_gen.connect()
-function_gen.set_amplitude(5)
+function_gen.set_amplitude(pk2pk)
 function_gen.set_waveform('SIN')
 function_gen.ActiveOutput()
 
@@ -20,7 +21,7 @@ for i in range(points):
     freq = min_freq + (max_freq - min_freq) * i / (points - 1)
     function_gen.set_frequency(freq)
     time.sleep(0.1)
-    scope.rescale_channels()
+    scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
     freq_mes = scope.mesure_frequence()
     amp_x.append(freq_mes)
     amp_y.append(scope.mesure_gain())
