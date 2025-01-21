@@ -22,6 +22,9 @@ class MainFrame(wx.Frame):
         # Création d'un panneau
         panel = wx.Panel(self)
 
+        # enlève le bouton d'agrangissement de la fenêtre
+        self.SetWindowStyle(self.GetWindowStyle() & ~wx.MAXIMIZE_BOX)
+
         # ---- Configuration de la fréquence ----
         freq_title = wx.StaticText(panel, label='Frequency Configuration:', pos=(20, 10))
         font = freq_title.GetFont()
@@ -241,7 +244,6 @@ class MainFrame(wx.Frame):
         gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
         gauge.SetValue(10)
 
-
         # ------------ Séquence de test ------------
 
         ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
@@ -309,9 +311,8 @@ class MainFrame(wx.Frame):
 
         # Tracer le graphique logarithmique pour amplitude
         ax1.set_xscale('log')
-        ax1.set_yscale('log')
         ax1.plot(amp_x, amp_y, marker='o', color='blue', label='Amplitude')
-        ax1.set_title('Amplitude (Log-Log)')
+        ax1.set_title('Amplitude (Semi-Log)')
         ax1.set_xlabel('Frequency (Hz)')
         ax1.set_ylabel('Amplitude')
         ax1.legend()
@@ -375,7 +376,6 @@ class MainFrame(wx.Frame):
 
         # Rouvrir la fenêtre principale (optionnel, selon besoin)
         self.Show()
-
 
 
 if __name__ == '__main__':
