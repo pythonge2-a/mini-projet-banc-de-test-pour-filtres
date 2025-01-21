@@ -234,20 +234,16 @@ class MainFrame(wx.Frame):
         gauge.SetValue(progress)
     
     def test_results(self):
-        """Afficher la page de résultats de test."""
-
-        # ------------ Créer une page de résultats ------------
-
-        # Créer une nouvelle fenêtre
+        # Créer une nouvelle fenêtre pour les résultats
         result_frame = wx.Frame(parent=None, title='Test Results', size=(1000, 800))
         panel = wx.Panel(result_frame)
+
         # Barre de chargement
         gauge = wx.Gauge(panel, range=100, pos=(20, 20), size=(360, 25))
         gauge.SetValue(10)
 
         # ------------ Séquence de test ------------
 
-        ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
         pk2pk = float(self.get_amplitude())
         min_freq, max_freq = self.get_frequency_config()
         min_freq = float(min_freq)
@@ -255,77 +251,58 @@ class MainFrame(wx.Frame):
         points = int(self.get_points_config())
         ip = self.get_ip_addresses()
 
-        
-        ### Connexion aux instruments
+        gain_x, gain_y, phase_x, phase_y = [], [], [], []
+
         try:
+            # Connexion aux instruments
             function_gen = Agilent_GenFct.Agilent33220A(ip['Générateur de fonction'])
             function_gen.connect()
             function_gen.set_amplitude(pk2pk)
             function_gen.set_waveform('SIN')
             function_gen.ActiveOutput()
-        except Exception as e:
-            print(f"Erreur de connexion au générateur de fonction : {e}")
-            exit(1)
 
-        try:
             scope = tek_scope.Tektronix_scope(ip['Oscilloscope'])
-        except Exception as e:
-            print(f"Erreur de connexion à l'oscilloscope : {e}")
-            function_gen.DeactivateOutput()
+            
+            # Acquisition des données
+            for i in range(points):
+                freq = min_freq * (max_freq / min_freq) ** (i / (points - 1))
+                function_gen.set_frequency(freq)
+                time.sleep(0.2)
+
+                scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
+                time.sleep(0.2)
+
+                freq_mes = scope.mesure_frequence()
+                gain = scope.mesure_gain()
+                phase = scope.mesure_phase()
+
+                if freq_mes is not None and gain is not None and phase is not None:
+                    gain_x.append(freq_mes)
+                    gain_y.append(gain)
+                    phase_x.append(freq_mes)
+                    phase_y.append(phase)
+                else:
+                    print(f"⚠ Erreur de mesure à {freq:.2f} Hz, valeurs ignorées.")
+
+            # Fermeture propre des instruments
+            scope.deconnecter()
+            function_gen.DeactiveOutput()
             function_gen.disconnect()
-            exit(1)
 
-        ### Acquisition des données
-        gain_x, gain_y, phase_x, phase_y = [], [], [], []
- 
-        # Init
-        function_gen.set_frequency(min_freq)
-        scope.rescale_channels(frequence=min_freq, pk2pk=pk2pk)
-        time.sleep(1)
-        freq_mes = scope.mesure_frequence()
-        gain = scope.mesure_gain()
-        phase = scope.mesure_phase()
+        except Exception as e:
+            print(f"Erreur lors de la connexion ou de l'acquisition : {e}")
+            wx.MessageBox(f"Erreur lors de la connexion ou de l'acquisition : {e}", 'Error', wx.OK | wx.ICON_ERROR)
+            return
 
-        for i in range(0, points):
-            freq = min_freq * (max_freq / min_freq) ** (i / (points - 1))
-            function_gen.set_frequency(freq)
-            time.sleep(0.2)
+        # ------------ Résultats calculés ------------
 
-            scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
-            time.sleep(0.2)
-            freq_mes = scope.mesure_frequence()
-            gain = scope.mesure_gain()
-            phase = scope.mesure_phase()
-
-            if freq_mes is not None and gain is not None and phase is not None:
-                gain_x.append(freq_mes)
-                gain_y.append(gain)
-                phase_x.append(freq_mes)
-                phase_y.append(phase)
-            else:
-                print(f"⚠ Erreur de mesure à {freq:.2f} Hz, valeurs ignorées.")
-
-            # Mise à jour de la barre de progression    
-            progress = (i + 1) * 100 / points
-            self.update_progress(progress)
-
-        ### Fermeture propre des instruments
-        scope.deconnecter()
-
-        # Récupération des données de gain et de phase
-        gain = [(x, y) for x, y in zip(gain_x, gain_y) if y is not None]
-        phase = [(x, y) for x, y in zip(phase_x, phase_y) if y is not None]
-
-        # ------------ traitement des données de test ------------
-
-        # Résultats calculés (simulés ici pour l'exemple)
         results = {
-            'frequence_coupure': [1500],
+            'frequence_coupure': [1500],  # Exemple statique, ajustez selon vos calculs
             'facteur_qualite': 1.2,
             'ordre': 2
         }
 
-        # ------------ affichage des données de test ------------
+        # ------------ Affichage des résultats ------------
 
         # Créer un graphique matplotlib
         figure = Figure(figsize=(6, 4))
@@ -343,7 +320,7 @@ class MainFrame(wx.Frame):
         ax1.legend()
         ax1.grid(True, which='both', linestyle='--')
 
-        # Tracer le graphique logarithmique pour phase
+        # Tracer le graphique logarithmique pour la phase
         ax2.set_xscale('log')
         ax2.plot(phase_x, phase_y, marker='s', color='green', label='Phase')
         ax2.set_title('Phase (Semi-Log)')
@@ -355,21 +332,28 @@ class MainFrame(wx.Frame):
         # Intégrer matplotlib dans wxPython
         canvas = FigureCanvas(panel, -1, figure)
 
-        # Ajouter les résultats en texte
+        # Ajouter les résultats sous forme de texte
         results_text = (
             f"Fréquences de coupure : {', '.join([f'{fc} Hz' for fc in results['frequence_coupure']])}\n"
             f"Facteur de qualité (Q) : {results['facteur_qualite']}\n"
             f"Ordre du filtre : {results['ordre']}\n"
             f"Nombre de points : {self.get_points_config()}"
         )
-
         results_label = wx.StaticText(panel, label=results_text, pos=(20, 40))
 
-        # Appliquer un style au texte (augmenter la taille et le rendre gras)
+        # Appliquer un style au texte
         font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         results_label.SetFont(font)
 
-        # Ajuster la mise en page
+        # ------------ Bouton de redémarrage ------------
+
+        restart_button = wx.Button(panel, label='Restart Test', size=(180, 40))
+        button_font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        restart_button.SetFont(button_font)
+        restart_button.Bind(wx.EVT_BUTTON, self.restart_test)
+
+        # ------------ Mise en page ------------
+
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(gauge, 0, wx.ALL | wx.EXPAND, 10)
         sizer.Add(canvas, 1, wx.ALL | wx.EXPAND, 10)
@@ -377,20 +361,9 @@ class MainFrame(wx.Frame):
         sizer.Add(restart_button, 0, wx.ALL | wx.CENTER, 10)
         panel.SetSizer(sizer)
 
-        # ------------ bouton de redémarrage du test ------------
-    
-        # Ajouter un bouton "Restart Test" avec une taille plus grande
-        restart_button = wx.Button(panel, label='Restart Other Test', size=(180, 40), pos=(400, 550))
-    
-        # Appliquer une police en gras au bouton
-        button_font = wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-        restart_button.SetFont(button_font)
-    
-        # Lier l'événement du bouton
-        restart_button.Bind(wx.EVT_BUTTON, self.restart_test)
-
         # Afficher la fenêtre
         result_frame.Show()
+
 
     def restart_test(self, event):
         """Redémarrer le test en fermant la fenêtre actuelle et rouvrant la configuration principale."""
