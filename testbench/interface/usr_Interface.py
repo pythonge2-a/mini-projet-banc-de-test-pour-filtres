@@ -247,9 +247,11 @@ class MainFrame(wx.Frame):
         # ------------ Séquence de test ------------
 
         ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
-        pk2pk = self.get_amplitude()
+        pk2pk = float(self.get_amplitude())
         min_freq, max_freq = self.get_frequency_config()
-        points = self.get_points_config()
+        min_freq = float(min_freq)
+        max_freq = float(max_freq)
+        points = int(self.get_points_config())
         ip = self.get_ip_addresses()
 
         

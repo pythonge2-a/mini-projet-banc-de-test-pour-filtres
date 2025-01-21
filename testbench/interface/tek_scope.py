@@ -35,6 +35,7 @@ class Tektronix_scope:
             self.scope.write('AUToscale')
 
             # Réglage de la base de temps
+            frequence = float(frequence)
             self.scope.write(f'HORizontal:SCAle {1 / frequence / 2.5}')
 
         except VisaIOError as e:
