@@ -10,6 +10,7 @@ import time
 import tek_scope
 import Agilent_GenFct
 import siglentmultimeter
+import pyvisa
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -302,6 +303,10 @@ class MainFrame(wx.Frame):
             else:
                 print(f"⚠ Erreur de mesure à {freq:.2f} Hz, valeurs ignorées.")
 
+            # Mise à jour de la barre de progression    
+            progress = (i + 1) * 100 / points
+            self.update_progress(progress)
+
         ### Fermeture propre des instruments
         scope.deconnecter()
 
@@ -318,10 +323,6 @@ class MainFrame(wx.Frame):
             'ordre': 2
         }
 
-        # Convertir les données pour affichage
-        gain_y, gain_x = zip(*gain)
-        phase_y, phase_x = zip(*phase)
-
         # ------------ affichage des données de test ------------
 
         # Créer un graphique matplotlib
@@ -330,7 +331,7 @@ class MainFrame(wx.Frame):
         ax2 = figure.add_subplot(212)
         figure.subplots_adjust(hspace=0.5)
 
-        # Tracer le graphique logarithmique pour amplitude
+        # Tracer le graphique logarithmique pour le gain
         ax1.set_xscale('log')
         ax1.set_yscale('log')
         ax1.plot(gain_x, gain_y, marker='o', color='blue', label='Amplitude')
