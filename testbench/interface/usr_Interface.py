@@ -245,45 +245,66 @@ class MainFrame(wx.Frame):
         # ------------ Séquence de test ------------
 
         ### Fait les mesure et avance le chargement de la barre de progression selon les mesures
+        pk2pk = self.get_amplitude()
+        min_freq, max_freq = self.get_frequency_config()
+        points = self.get_points_config()
+        ip = self.get_ip_addresses()
+
+        
+        ### Connexion aux instruments
         try:
-            ip_addresses = self.get_ip_addresses()
-            function_gen = Agilent_GenFct.AgilentGenFct(ip_addresses['Générateur de fonction'])
+            function_gen = Agilent_GenFct.Agilent33220A(ip['Générateur de fonction'])
             function_gen.connect()
-            function_gen.set_amplitude(self.get_amplitude())
+            function_gen.set_amplitude(pk2pk)
             function_gen.set_waveform('SIN')
             function_gen.ActiveOutput()
+        except Exception as e:
+            print(f"Erreur de connexion au générateur de fonction : {e}")
+            exit(1)
 
-            scope = tek_scope.Tektronix_scope(ip_addresses['Oscilloscope'])
-            scope.connect()
+        try:
+            scope = tek_scope.Tektronix_scope(ip['Oscilloscope'])
+        except Exception as e:
+            print(f"Erreur de connexion à l'oscilloscope : {e}")
+            function_gen.DeactivateOutput()
+            function_gen.disconnect()
+            exit(1)
 
-            min_freq, max_freq = self.get_frequency_config()
-            points = self.get_points_config()
-            amp_x, amp_y, phase_x, phase_y = [], [], [], []
+        ### Acquisition des données
+        gain_x, gain_y, phase_x, phase_y = [], [], [], []
+ 
+        # Init
+        function_gen.set_frequency(min_freq)
+        scope.rescale_channels(frequence=min_freq, pk2pk=pk2pk)
+        time.sleep(1)
+        freq_mes = scope.mesure_frequence()
+        gain = scope.mesure_gain()
+        phase = scope.mesure_phase()
 
-            for i in range(points):
-                freq = min_freq + (max_freq - min_freq) * i / (points - 1)
-                function_gen.set_frequency(freq)
-                time.sleep(0.1)
-                freq_mes = scope.mesure_frequence()
-                amp_x.append(freq_mes)
-                amp_y.append(scope.mesure_gain())
+        for i in range(0, points):
+            freq = min_freq * (max_freq / min_freq) ** (i / (points - 1))
+            function_gen.set_frequency(freq)
+            time.sleep(0.2)
+
+            scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
+            time.sleep(0.2)
+            freq_mes = scope.mesure_frequence()
+            gain = scope.mesure_gain()
+            phase = scope.mesure_phase()
+
+            if freq_mes is not None and gain is not None and phase is not None:
+                gain_x.append(freq_mes)
+                gain_y.append(gain)
                 phase_x.append(freq_mes)
-                phase_y.append(scope.mesure_phase())
-                wx.CallAfter(gauge.SetValue, int((i + 1) / points * 100))
+                phase_y.append(phase)
+            else:
+                print(f"⚠ Erreur de mesure à {freq:.2f} Hz, valeurs ignorées.")
 
-            ax1.set_xscale('log')
-            ax1.plot(amp_x, amp_y, 'bo-', label='Amplitude')
-            ax1.grid(True, which='both', linestyle='--')
-
-            ax2.set_xscale('log')
-            ax2.plot(phase_x, phase_y, 'gs-', label='Phase')
-            ax2.grid(True, which='both', linestyle='--')
-        finally:
-            if scope: scope.disconnect()
-            if function_gen: function_gen.disconnect()
+        ### Fermeture propre des instruments
+        scope.deconnecter()
 
         # Récupération des données de gain et de phase
-        amplitude = [(x, y) for x, y in zip(amp_x, amp_y) if y is not None]
+        gain = [(x, y) for x, y in zip(gain_x, gain_y) if y is not None]
         phase = [(x, y) for x, y in zip(phase_x, phase_y) if y is not None]
 
         # ------------ traitement des données de test ------------
@@ -296,7 +317,7 @@ class MainFrame(wx.Frame):
         }
 
         # Convertir les données pour affichage
-        amp_y, amp_x = zip(*amplitude)
+        gain_y, gain_x = zip(*gain)
         phase_y, phase_x = zip(*phase)
 
         # ------------ affichage des données de test ------------
@@ -310,7 +331,7 @@ class MainFrame(wx.Frame):
         # Tracer le graphique logarithmique pour amplitude
         ax1.set_xscale('log')
         ax1.set_yscale('log')
-        ax1.plot(amp_x, amp_y, marker='o', color='blue', label='Amplitude')
+        ax1.plot(gain_x, gain_y, marker='o', color='blue', label='Amplitude')
         ax1.set_title('Amplitude (Log-Log)')
         ax1.set_xlabel('Frequency (Hz)')
         ax1.set_ylabel('Amplitude')
