@@ -1,6 +1,7 @@
 import pyvisa
 from pyvisa import VisaIOError
 import time
+import math
 
 class Tektronix_scope:
     def __init__(self, ip):
@@ -20,26 +21,21 @@ class Tektronix_scope:
             # Acquisition en cours
             self.scope.write('ACQuire:STATE RUN')
 
+            # Sonde 10x
+            self.scope.write('CH1:PRObe 10')
+            self.scope.write('CH2:PRObe 10')
+
         except VisaIOError as e:
             print(f"Erreur de connexion à l'oscilloscope : {e}")
             self.scope = None
 
     def rescale_channels(self, frequence, pk2pk):
         try:
-            # Calcul de l'échelle à partir de pk2pk
-            scale_value = pk2pk / 4  # Appliquer 1/4 de la valeur de crête-à-crête
+            #Auto scale
+            self.scope.write('AUToscale')
 
-            # Ajuster les échelles des canaux en fonction de pk2pk
-            self.scope.write(f'CH1:SCAle {scale_value}')
-            self.scope.write(f'CH2:SCAle {scale_value}')
-
-            print(f"Canaux rescalés : Échelle définie à {scale_value} V/div pour pk2pk = {pk2pk} V")
-
-            # Ajuster l'échelle de temps en fonction de la fréquence
-            self.scope.write(f'TIMEBASE:SCAle {1 / frequence}')  # Par exemple, pour une fréquence de 1 Hz, l'échelle de temps est 1 seconde/div
-            print(f"Fréquence mise à jour : {frequence} Hz")
-
-            time.sleep(1)  # Attente après l'ajustement
+            # Réglage de la base de temps
+            self.scope.write(f'HORizontal:SCAle {1 / frequence / 2.5}')
 
         except VisaIOError as e:
             print(f"Erreur lors du rescale des canaux : {e}")
@@ -52,11 +48,9 @@ class Tektronix_scope:
         try:
             self.scope.write('MEASUrement:IMMed:TYPe CRMS')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            time.sleep(1)
             rms1 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
 
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH2')
-            time.sleep(1)
             rms2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
 
             # Check if the rms1 is not null
@@ -64,7 +58,7 @@ class Tektronix_scope:
                 print("Erreur : le gain ne peut pas être calculé si la valeur de référence est nulle.")
                 return None
 
-            gain = rms2 / rms1
+            gain = 20*math.log10(rms2 / rms1)
             return gain
 
         except VisaIOError as e:
@@ -80,7 +74,6 @@ class Tektronix_scope:
             self.scope.write('MEASUrement:IMMed:TYPe PHASE')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
             self.scope.write('MEASUrement:IMMed:SOUrce2 CH2')
-            time.sleep(2)
 
             phase = float(self.scope.query('MEASUrement:IMMed:VALue?'))
             return phase
@@ -97,7 +90,6 @@ class Tektronix_scope:
         try:
             self.scope.write('MEASUrement:IMMed:TYPe FREQuency')
             self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            time.sleep(2)
 
             freq = float(self.scope.query('MEASUrement:IMMed:VALue?'))
             return freq
