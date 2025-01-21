@@ -29,6 +29,23 @@ def get_cutoff_frequency(data):
             return freq
     return None
 
+def get_quality_factor(data):
+    """Return quality factor from dictionary."""
+    if not isinstance(data, dict):
+        raise TypeError("Data must be a dictionary")
+    
+    cutfreq = get_cutoff_frequency(data)
+    
+    if cutfreq is None:
+        raise ValueError("Cutoff frequency is not found")
+    
+    cutfreq = round(cutfreq, 0)
+    
+    if data[cutfreq/10] < 5:
+        return cutfreq / (2 * (data[cutfreq] + 3))
+    else:
+        return cutfreq / (2 * (data[cutfreq/10] + 3))
+
 def get_order(data):
     """Return order of the filter."""
 
