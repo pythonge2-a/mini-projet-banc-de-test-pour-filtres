@@ -99,7 +99,8 @@ class SiglentSDM3065X:
         #makes sure the multimeter is in vac mode
         try:
             self.get_measure_v_dc()
-        except:
+        except pyvisa.errors.VisaIOError as e: 
+            _ = e # timeout is a known error, this is an easy fix
             pass
 
         self.get_measure_v_dc()
@@ -114,7 +115,8 @@ class SiglentSDM3065X:
         #makes sure the multimeter is in vdc mode
         try:
             self.get_measure_v_ac()
-        except:
+        except pyvisa.errors.VisaIOError as e: 
+            _ = e  # timeout is a known error, this is an easy fix
             pass
 
         self.get_measure_v_ac()
