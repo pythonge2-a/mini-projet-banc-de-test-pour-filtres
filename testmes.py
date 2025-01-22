@@ -1,5 +1,5 @@
-import testbench.interface.tek_scope as tek_scope
-import testbench.interface.Agilent_GenFct as Agilent_GenFct
+import testbench.tek_scope as tek_scope
+import testbench.Agilent_GenFct as Agilent_GenFct
 import time
 import numpy as np
 import matplotlib.pyplot as plt

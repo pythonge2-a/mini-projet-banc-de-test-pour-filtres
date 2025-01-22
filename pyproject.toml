@@ -11,9 +11,7 @@ python = "^3.11"
 pyvisa = "^1.14.1"
 pyvisa-py = "^0.7.2"
 wxpython = "^4.2.2"
-
-[tool.poetry.scripts]
-testbench = "testbench.interface.__main__:main"
+packaging = "^24.2"
 
 [build-system]
 requires = ["poetry-core"]

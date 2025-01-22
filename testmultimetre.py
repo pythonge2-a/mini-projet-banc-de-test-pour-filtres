@@ -1,4 +1,4 @@
-from testbench.interface.siglentmultimeter import SiglentSDM3065X
+from testbench.siglentmultimeter import SiglentSDM3065X
 
 ip_test_lab_multimeter = "10.192.79.36"
 
