@@ -7,10 +7,10 @@ from matplotlib.figure import Figure
 import numpy as np
 import time
 
+# Importation des fichiers de gestion des appareils
 import tek_scope
 import Agilent_GenFct
 import siglentmultimeter
-import pyvisa
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -375,8 +375,10 @@ class MainFrame(wx.Frame):
         # Rouvrir la fenêtre principale (optionnel, selon besoin)
         self.Show()
 
-
-if __name__ == '__main__':
-    app = wx.App(False)
+def main():
+    app = wx.App()
     frame = MainFrame()
     app.MainLoop()
+
+if __name__ == '__main__':
+    main()
