@@ -13,9 +13,6 @@ pyvisa-py = "^0.7.2"
 wxpython = "^4.2.2"
 packaging = "^24.2"
 
-[tool.poetry.scripts]
-format = "black ."
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
