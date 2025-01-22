@@ -20,7 +20,7 @@ if multimeter.VdcChangeMode() is not None:
     print(multimeter.get_measure_v_dc())
 else:
     print("DC not ready")
-    
+
 if multimeter.VacChangeMode() is not None:
     print("AC ready, measures :")
 

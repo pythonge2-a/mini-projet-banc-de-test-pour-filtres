@@ -1,4 +1,5 @@
 from testbench.Agilent_GenFct import Agilent33220A
+
 Genfct = Agilent33220A("10.192.79.15")
 Genfct.connect()
 print(Genfct.get_id())
