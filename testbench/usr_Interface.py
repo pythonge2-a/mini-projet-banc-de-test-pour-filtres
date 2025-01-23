@@ -374,6 +374,9 @@ class MainFrame(wx.Frame):
         ax1.set_ylabel('Amplitude')
         ax1.legend()
         ax1.grid(True, which='both', linestyle='--')
+        # trace une ligne à la fréquence de coupure
+        ax1.axvline(x=results['frequence_coupure'][0], color='red', linestyle='--', label='Fréquence de coupure')
+        ax1.legend()
 
         # Tracer le graphique logarithmique pour la phase, la fréquence vas de 10^3 en 10^3
         ax2.set_xscale('log')

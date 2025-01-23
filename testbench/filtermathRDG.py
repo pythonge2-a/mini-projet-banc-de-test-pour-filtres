@@ -26,16 +26,26 @@ def formulate_data_single_Vin(freqs, vin, vs_out):
 
 def get_cutoff_frequency(data):
     """Return cut off frequency (-3 dB) from dictionary."""
-    if not isinstance(data, dict):
-        raise TypeError("Data must be a dictionary")
-    #get max gain
-    for freq, gain in data.items():
-        if max_gain < gain:
-            max_gain = gain 
+     # Trier les données par fréquence croissante
+    frequences = np.array(sorted(data.keys()))
+    gains = np.array([data[f] for f in frequences])
 
-    for freq, gain in data.items():
-        if round(gain, 0) == max_gain - 3:
-            return freq
+    # Trouver le gain maximal
+    gain_max = max(gains)
+
+    # Calculer le niveau de -3 dB
+    seuil_coupure = gain_max / np.sqrt(2)
+
+    # Trouver la fréquence la plus proche du seuil de -3 dB
+    for i in range(1, len(gains)):
+        if gains[i] <= seuil_coupure:
+            # Interpolation linéaire pour une meilleure précision
+            f1, f2 = frequences[i - 1], frequences[i]
+            g1, g2 = gains[i - 1], gains[i]
+            frequence_coupure = f1 + (seuil_coupure - g1) * (f2 - f1) / (g2 - g1)
+            return frequence_coupure
+    
+    # Si aucune fréquence de coupure n'est trouvée
     return None
 
 
