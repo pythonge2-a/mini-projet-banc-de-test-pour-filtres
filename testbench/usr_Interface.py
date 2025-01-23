@@ -309,7 +309,10 @@ class MainFrame(wx.Frame):
 
                 # Check if multimeter is used
                 if self.use_multimeter.IsChecked():
-                    gain = multimeter.mesure_gain()
+                    multimeter.VacChangeMode()
+                    vOut = multimeter.mesure_v_ac()
+                    gain = filtermathRDG.get_gainDb(scope.mesure_VrmsCH1, vOut)
+
                 else:
                     gain = scope.mesure_gain()
 
