@@ -11,6 +11,7 @@ import tek_scope
 import Agilent_GenFct
 import siglentmultimeter
 import pyvisa
+import filtermathRDG
 
 class MainFrame(wx.Frame):
     def __init__(self):
@@ -262,9 +263,34 @@ class MainFrame(wx.Frame):
             function_gen.ActiveOutput()
 
             scope = tek_scope.Tektronix_scope(ip['Oscilloscope'])
+
+            # Check if multimeter is used
+            if self.use_multimeter.IsChecked():
+                multimeter = siglentmultimeter.SiglentMultimeter(ip['Multimètre'])
+                multimeter.connect()
             
+            # Premier point
+            freq = min_freq
+            function_gen.set_frequency(freq)
+            time.sleep(1)
+
+            scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
+            time.sleep(1)
+
+            # Mesures initiales
+            freq_mes = scope.mesure_frequence()
+            phase = scope.mesure_phase()
+
+            # Check if multimeter is used
+            if self.use_multimeter.IsChecked():
+                multimeter.VacChangeMode()
+                vOut = multimeter.mesure_v_ac()
+                gain = filtermathRDG.get_gainDb(scope.mesure_VrmsCH1, vOut)
+            else:
+                gain = scope.mesure_gain()
+        
             # Acquisition des données
-            for i in range(points):
+            for i in range(0, points):
                 freq = min_freq * (max_freq / min_freq) ** (i / (points - 1))
                 function_gen.set_frequency(freq)
                 time.sleep(0.2)
@@ -273,8 +299,13 @@ class MainFrame(wx.Frame):
                 time.sleep(0.2)
 
                 freq_mes = scope.mesure_frequence()
-                gain = scope.mesure_gain()
                 phase = scope.mesure_phase()
+
+                # Check if multimeter is used
+                if self.use_multimeter.IsChecked():
+                    gain = multimeter.mesure_gain()
+                else:
+                    gain = scope.mesure_gain()
 
                 if freq_mes is not None and gain is not None and phase is not None:
                     gain_x.append(freq_mes)
