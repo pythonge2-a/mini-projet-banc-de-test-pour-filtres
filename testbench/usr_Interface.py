@@ -349,10 +349,13 @@ class MainFrame(wx.Frame):
 
         # ------------ Résultats calculés ------------
 
+        # dictionnaire de données (gain_x, et gain_y) 
+        data = dict(zip(gain_x, gain_y))
+
         results = {
-            'frequence_coupure': [1500],  # Exemple statique, ajustez selon vos calculs
-            'facteur_qualite': 1.2,
-            'ordre': 2
+            'frequence_coupure': [filtermathRDG.get_cutoff_frequency(data)],  # Exemple statique, ajustez selon vos calculs
+            'facteur_qualite': filtermathRDG.get_quality_factor(data),
+            'ordre': filtermathRDG.get_order(data)
         }
 
         # ------------ Affichage des résultats ------------
@@ -371,6 +374,9 @@ class MainFrame(wx.Frame):
         ax1.set_ylabel('Amplitude')
         ax1.legend()
         ax1.grid(True, which='both', linestyle='--')
+        # trace une ligne à la fréquence de coupure
+        ax1.axvline(x=results['frequence_coupure'][0], color='red', linestyle='--', label='Fréquence de coupure')
+        ax1.legend()
 
         # Tracer le graphique logarithmique pour la phase, la fréquence vas de 10^3 en 10^3
         ax2.set_xscale('log')
