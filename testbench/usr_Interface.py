@@ -272,10 +272,10 @@ class MainFrame(wx.Frame):
             # Premier point
             freq = min_freq
             function_gen.set_frequency(freq)
-            time.sleep(1)
+            time.sleep(2)
 
             scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
-            time.sleep(1)
+            time.sleep(2)
 
             # Mesures initiales
             freq_mes = scope.mesure_frequence()
@@ -293,13 +293,19 @@ class MainFrame(wx.Frame):
             for i in range(0, points):
                 freq = min_freq * (max_freq / min_freq) ** (i / (points - 1))
                 function_gen.set_frequency(freq)
-                time.sleep(0.2)
+                time.sleep(0.1)
 
                 scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
-                time.sleep(0.2)
+                time.sleep(0.1)
 
                 freq_mes = scope.mesure_frequence()
                 phase = scope.mesure_phase()
+
+                #si la fréquence dépasse 10^15, on suprime la valeur en question ainsi que le gain et la phase
+                if freq_mes > 1e15:
+                    freq_mes = None
+                    gain = None
+                    phase = None
 
                 # Check if multimeter is used
                 if self.use_multimeter.IsChecked():
@@ -319,6 +325,12 @@ class MainFrame(wx.Frame):
             scope.deconnecter()
             function_gen.DeactiveOutput()
             function_gen.disconnect()
+
+            # affiche gain_x, gain_y, phase_x, phase_y séparément
+            print(f"Gain X: {gain_x}")
+            print(f"Gain Y: {gain_y}")
+            print(f"Phase X: {phase_x}")
+            print(f"Phase Y: {phase_y}")
 
         except Exception as e:
             print(f"Erreur lors de la connexion ou de l'acquisition : {e}")
@@ -341,7 +353,7 @@ class MainFrame(wx.Frame):
         ax2 = figure.add_subplot(212)
         figure.subplots_adjust(hspace=0.5)
 
-        # Tracer le graphique logarithmique pour le gain
+        # Tracer le graphique logarithmique pour le gain, la fréquence vas de 10^3 en 10^3
         ax1.set_xscale('log')
         ax1.plot(gain_x, gain_y, marker='o', color='blue', label='Amplitude')
         ax1.set_title('Amplitude (Log-Log)')
@@ -350,7 +362,7 @@ class MainFrame(wx.Frame):
         ax1.legend()
         ax1.grid(True, which='both', linestyle='--')
 
-        # Tracer le graphique logarithmique pour la phase
+        # Tracer le graphique logarithmique pour la phase, la fréquence vas de 10^3 en 10^3
         ax2.set_xscale('log')
         ax2.plot(phase_x, phase_y, marker='s', color='green', label='Phase')
         ax2.set_title('Phase (Semi-Log)')
