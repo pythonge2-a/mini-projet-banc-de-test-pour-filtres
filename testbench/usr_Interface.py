@@ -328,8 +328,22 @@ class MainFrame(wx.Frame):
                 multimeter = siglentmultimeter.SiglentMultimeter(ip["Multimètre"])
                 multimeter.connect()
 
+            # Mesure of the first point
+            function_gen.set_frequency(min_freq)
+            scope.rescale_channels(frequence=min_freq, pk2pk=pk2pk)
+            time.sleep(1)
+            freq_mes = scope.mesure_frequence()
+
+            # Mesure de la tension si un multimètre est connecté
+            if self.use_multimeter.IsChecked():
+                gain = multimeter.mesure_tension()
+            else:
+                gain = scope.mesure_gain()
+            
+            phase = scope.mesure_phase()
+
             # Acquisition des données
-            for i in range(points):
+            for i in range(0, points):
                 freq = min_freq * (max_freq / min_freq) ** (i / (points - 1))
                 function_gen.set_frequency(freq)
                 time.sleep(0.2)
