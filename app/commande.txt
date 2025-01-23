@@ -1,0 +1,1 @@
+pyinstaller --onefile ../testbench/usr_Interface.py --name testbench --noconsole 
