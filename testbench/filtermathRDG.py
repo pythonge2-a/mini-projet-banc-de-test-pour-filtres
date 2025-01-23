@@ -28,9 +28,11 @@ def get_cutoff_frequency(data):
     """Return cut off frequency (-3 dB) from dictionary."""
     if not isinstance(data, dict):
         raise TypeError("Data must be a dictionary")
+    #get max gain
+    max_gain = max(data.values())
 
     for freq, gain in data.items():
-        if round(gain, 0) == -3:
+        if round(gain, 0) == max_gain - 3:
             return freq
     return None
 
