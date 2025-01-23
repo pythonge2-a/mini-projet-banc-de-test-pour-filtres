@@ -323,6 +323,11 @@ class MainFrame(wx.Frame):
 
             scope = tek_scope.Tektronix_scope(ip["Oscilloscope"])
 
+            # Connexion au multimètre si sélectionné
+            if self.use_multimeter.IsChecked():
+                multimeter = siglentmultimeter.SiglentMultimeter(ip["Multimètre"])
+                multimeter.connect()
+
             # Acquisition des données
             for i in range(points):
                 freq = min_freq * (max_freq / min_freq) ** (i / (points - 1))
@@ -333,7 +338,13 @@ class MainFrame(wx.Frame):
                 time.sleep(0.2)
 
                 freq_mes = scope.mesure_frequence()
-                gain = scope.mesure_gain()
+
+                # Mesure de la tension si un multimètre est connecté
+                if self.use_multimeter.IsChecked():
+                    gain = multimeter.mesure_tension()
+                else:
+                    gain = scope.mesure_gain()
+                
                 phase = scope.mesure_phase()
 
                 if freq_mes is not None and gain is not None and phase is not None:
