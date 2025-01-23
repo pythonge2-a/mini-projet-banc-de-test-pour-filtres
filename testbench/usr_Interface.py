@@ -375,6 +375,8 @@ class MainFrame(wx.Frame):
             scope.deconnecter()
             function_gen.DeactiveOutput()
             function_gen.disconnect()
+            if self.use_multimeter.IsChecked():
+                multimeter.disconnect()
 
         except Exception as e:
             print(f"Erreur lors de la connexion ou de l'acquisition : {e}")
