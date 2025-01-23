@@ -32,7 +32,9 @@ def get_cutoff_frequency(data):
 
     # Vérifier les valeurs invalides dans les données
     if not np.all(np.isfinite(gains_db)):
-        raise ValueError("Les gains contiennent des valeurs non finies (NaN ou Inf). Vérifiez les données.")
+        raise ValueError(
+            "Les gains contiennent des valeurs non finies (NaN ou Inf). Vérifiez les données."
+        )
 
     # Parcourir les fréquences pour détecter une chute de -3 dB par décades
     for i in range(1, len(frequences)):
@@ -66,11 +68,15 @@ def get_quality_factor(data):
     for i in range(1, len(gains)):
         if gains[i - 1] >= seuil_coupure > gains[i]:
             # Interpolation linéaire pour f1
-            f1 = frequences[i - 1] + (seuil_coupure - gains[i - 1]) * (frequences[i] - frequences[i - 1]) / (gains[i] - gains[i - 1])
+            f1 = frequences[i - 1] + (seuil_coupure - gains[i - 1]) * (
+                frequences[i] - frequences[i - 1]
+            ) / (gains[i] - gains[i - 1])
         if gains[i - 1] <= seuil_coupure < gains[i]:
             # Interpolation linéaire pour f2
-            f2 = frequences[i - 1] + (seuil_coupure - gains[i - 1]) * (frequences[i] - frequences[i - 1]) / (gains[i] - gains[i - 1])
-    
+            f2 = frequences[i - 1] + (seuil_coupure - gains[i - 1]) * (
+                frequences[i] - frequences[i - 1]
+            ) / (gains[i] - gains[i - 1])
+
     # Vérifier si f1 et f2 ont été trouvés
     if f1 is not None and f2 is not None and f2 > f1:
         # Calculer le facteur de qualité
@@ -106,8 +112,9 @@ def get_order(data):
         return None  # Impossible de déterminer l'ordre sans fréquence de coupure
 
     # Calculer la pente autour de la fréquence de coupure (zone linéaire)
-    pente = (gains[indice_coupure] - gains[indice_coupure + 1]) / \
-            (np.log10(frequences[indice_coupure]) - np.log10(frequences[indice_coupure + 1]))
+    pente = (gains[indice_coupure] - gains[indice_coupure + 1]) / (
+        np.log10(frequences[indice_coupure]) - np.log10(frequences[indice_coupure + 1])
+    )
 
     # La pente en dB/décade est proportionnelle à l'ordre
     ordre = abs(pente / 20)  # Diviser par 20 car un ordre donne -20 dB/décade

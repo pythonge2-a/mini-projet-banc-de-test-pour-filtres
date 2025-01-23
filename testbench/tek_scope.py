@@ -69,7 +69,7 @@ class Tektronix_scope:
         except VisaIOError as e:
             print(f"Erreur lors de la mesure du gain : {e}")
             return None
-        
+
     def mesure_VrmsCH1(self):
         if not self.scope:
             print("Oscilloscope non connecté.")
@@ -85,7 +85,7 @@ class Tektronix_scope:
         except VisaIOError as e:
             print(f"Erreur lors de la mesure de VRMS CH1 : {e}")
             return None
-        
+
     def mesure_VrmsCH2(self):
         if not self.scope:
             print("Oscilloscope non connecté.")
