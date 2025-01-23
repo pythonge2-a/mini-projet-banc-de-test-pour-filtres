@@ -349,10 +349,13 @@ class MainFrame(wx.Frame):
 
         # ------------ Résultats calculés ------------
 
+        # dictionnaire de données (gain_x, et gain_y) 
+        data = dict(zip(gain_x, gain_y))
+
         results = {
-            'frequence_coupure': [1500],  # Exemple statique, ajustez selon vos calculs
-            'facteur_qualite': 1.2,
-            'ordre': 2
+            'frequence_coupure': [filtermathRDG.get_cutoff_frequency(data)],  # Exemple statique, ajustez selon vos calculs
+            'facteur_qualite': filtermathRDG.get_quality_factor(data),
+            'ordre': filtermathRDG.get_order(data)
         }
 
         # ------------ Affichage des résultats ------------
