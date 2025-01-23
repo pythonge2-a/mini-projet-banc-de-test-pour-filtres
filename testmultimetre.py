@@ -1,6 +1,6 @@
-from testbench.interface.siglentmultimeter import SiglentSDM3065X
+from testbench.siglentmultimeter import SiglentSDM3065X
 
-ip_test_lab_multimeter = "10.192.79.36"
+ip_test_lab_multimeter = "192.168.137.221"
 
 print("Test du multimètre Siglent SDM3065X")
 
@@ -20,7 +20,7 @@ if multimeter.VdcChangeMode() is not None:
     print(multimeter.get_measure_v_dc())
 else:
     print("DC not ready")
-    
+
 if multimeter.VacChangeMode() is not None:
     print("AC ready, measures :")
 

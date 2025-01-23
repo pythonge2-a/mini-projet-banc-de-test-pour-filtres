@@ -1,4 +1,4 @@
-from testbench.interface import data_treatement
+from testbench import data_treatement
 import csv
 
 # ouvle le csv de l'oscilloscope

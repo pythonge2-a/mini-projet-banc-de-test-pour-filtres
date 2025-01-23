@@ -12,7 +12,6 @@ import Agilent_GenFct
 import siglentmultimeter
 import pyvisa
 
-
 class MainFrame(wx.Frame):
     def __init__(self):
 
@@ -297,43 +296,11 @@ class MainFrame(wx.Frame):
 
         # ------------ Résultats calculés ------------
 
-        # Calcul des fréquences de coupure
-        results = {}
-        results['frequence_coupure'] = []
-        results['facteur_qualite'] = None
-        results['ordre'] = None
-
-        # affiche les valeurs de gain et de phase et les fréquences
-        print(f"Valeurs de gain : {gain_y}")
-        print(f"Valeurs de phase : {phase_y}")
-        print(f"Fréquences : {gain_x}")
-
-        # Calculer les fréquences de coupure
-        for i in range(len(gain_y) - 1):
-            if gain_y[i] < 0.707 < gain_y[i + 1]:
-                results['frequence_coupure'].append(gain_x[i])
-
-        print(f"Fréquences de coupure : {results['frequence_coupure']}")
-
-        # Calculer le facteur de qualité  
-        if len(results['frequence_coupure']) == 2:
-            results['facteur_qualite'] = results['frequence_coupure'][0] / (results['frequence_coupure'][1] - results['frequence_coupure'][0])
-        else:
-            results['facteur_qualite'] = None
-        
-
-        print(f"Facteur de qualité (Q) : {results['facteur_qualite']}") 
-
-        # Calculer l'ordre du filtre 
-        if len(results['frequence_coupure']) == 2:
-            results['ordre'] = 2
-        elif len(results['frequence_coupure']) == 1:
-            results['ordre'] = 1
-        else:
-            results['ordre'] = None  
-
-        print(f"Ordre du filtre : {results['ordre']}")
-        
+        results = {
+            'frequence_coupure': [1500],  # Exemple statique, ajustez selon vos calculs
+            'facteur_qualite': 1.2,
+            'ordre': 2
+        }
 
         # ------------ Affichage des résultats ------------
 
@@ -343,8 +310,9 @@ class MainFrame(wx.Frame):
         ax2 = figure.add_subplot(212)
         figure.subplots_adjust(hspace=0.5)
 
-        # Tracer le graphique semi-log pour le gain
+        # Tracer le graphique logarithmique pour le gain
         ax1.set_xscale('log')
+        ax1.set_yscale('log')
         ax1.plot(gain_x, gain_y, marker='o', color='blue', label='Amplitude')
         ax1.set_title('Amplitude (Log-Log)')
         ax1.set_xlabel('Frequency (Hz)')
@@ -392,10 +360,6 @@ class MainFrame(wx.Frame):
         sizer.Add(results_label, 0, wx.ALL | wx.EXPAND, 10)
         sizer.Add(restart_button, 0, wx.ALL | wx.CENTER, 10)
         panel.SetSizer(sizer)
-
-        # Mise à jour de la barre de progression
-        
-        self.update_progress(100)
 
         # Afficher la fenêtre
         result_frame.Show()

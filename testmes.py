@@ -1,5 +1,5 @@
-import testbench.interface.tek_scope as tek_scope
-import testbench.interface.Agilent_GenFct as Agilent_GenFct
+import testbench.tek_scope as tek_scope
+import testbench.Agilent_GenFct as Agilent_GenFct
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,17 +12,17 @@ points = 5
 
 ### Connexion aux instruments
 try:
-    function_gen = Agilent_GenFct.Agilent33220A('10.192.79.15')
+    function_gen = Agilent_GenFct.Agilent33220A("10.192.79.15")
     function_gen.connect()
     function_gen.set_amplitude(pk2pk)
-    function_gen.set_waveform('SIN')
+    function_gen.set_waveform("SIN")
     function_gen.ActiveOutput()
 except Exception as e:
     print(f"Erreur de connexion au générateur de fonction : {e}")
     exit(1)
 
 try:
-    scope = tek_scope.Tektronix_scope('10.192.79.63')
+    scope = tek_scope.Tektronix_scope("10.192.79.63")
 except Exception as e:
     print(f"Erreur de connexion à l'oscilloscope : {e}")
     function_gen.DeactivateOutput()

@@ -3,27 +3,28 @@ from pyvisa import VisaIOError
 import time
 import math
 
+
 class Tektronix_scope:
     def __init__(self, ip):
         self.ip = ip
         self.rm = pyvisa.ResourceManager()
 
         try:
-            self.scope = self.rm.open_resource(f'TCPIP::{ip}::INSTR')
-            print("Connecté à :", self.scope.query('*IDN?'))
-            self.scope.write('*RST')  # Réinitialise l'oscilloscope
+            self.scope = self.rm.open_resource(f"TCPIP::{ip}::INSTR")
+            print("Connecté à :", self.scope.query("*IDN?"))
+            self.scope.write("*RST")  # Réinitialise l'oscilloscope
             time.sleep(1)
 
             # Activation des canaux CH1 et CH2
-            self.scope.write('SELect:CH1 ON')
-            self.scope.write('SELect:CH2 ON')
+            self.scope.write("SELect:CH1 ON")
+            self.scope.write("SELect:CH2 ON")
 
             # Acquisition en cours
-            self.scope.write('ACQuire:STATE RUN')
+            self.scope.write("ACQuire:STATE RUN")
 
             # Sonde 10x
-            self.scope.write('CH1:PRObe 10')
-            self.scope.write('CH2:PRObe 10')
+            self.scope.write("CH1:PRObe 10")
+            self.scope.write("CH2:PRObe 10")
 
         except VisaIOError as e:
             print(f"Erreur de connexion à l'oscilloscope : {e}")
@@ -31,12 +32,12 @@ class Tektronix_scope:
 
     def rescale_channels(self, frequence, pk2pk):
         try:
-            #Auto scale
-            self.scope.write('AUToscale')
+            # Auto scale
+            self.scope.write("AUToscale")
 
             # Réglage de la base de temps
             frequence = float(frequence)
-            self.scope.write(f'HORizontal:SCAle {1 / frequence / 2.5}')
+            self.scope.write(f"HORizontal:SCAle {1 / frequence / 2.5}")
 
         except VisaIOError as e:
             print(f"Erreur lors du rescale des canaux : {e}")
@@ -47,19 +48,21 @@ class Tektronix_scope:
             return None
 
         try:
-            self.scope.write('MEASUrement:IMMed:TYPe CRMS')
-            self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            rms1 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            self.scope.write("MEASUrement:IMMed:TYPe CRMS")
+            self.scope.write("MEASUrement:IMMed:SOUrce1 CH1")
+            rms1 = float(self.scope.query("MEASUrement:IMMed:VALue?"))
 
-            self.scope.write('MEASUrement:IMMed:SOUrce1 CH2')
-            rms2 = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            self.scope.write("MEASUrement:IMMed:SOUrce1 CH2")
+            rms2 = float(self.scope.query("MEASUrement:IMMed:VALue?"))
 
             # Check if the rms1 is not null
             if rms1 == 0:
-                print("Erreur : le gain ne peut pas être calculé si la valeur de référence est nulle.")
+                print(
+                    "Erreur : le gain ne peut pas être calculé si la valeur de référence est nulle."
+                )
                 return None
 
-            gain = 20*math.log10(rms2 / rms1)
+            gain = 20 * math.log10(rms2 / rms1)
             return gain
 
         except VisaIOError as e:
@@ -72,11 +75,11 @@ class Tektronix_scope:
             return None
 
         try:
-            self.scope.write('MEASUrement:IMMed:TYPe PHASE')
-            self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
-            self.scope.write('MEASUrement:IMMed:SOUrce2 CH2')
+            self.scope.write("MEASUrement:IMMed:TYPe PHASE")
+            self.scope.write("MEASUrement:IMMed:SOUrce1 CH1")
+            self.scope.write("MEASUrement:IMMed:SOUrce2 CH2")
 
-            phase = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            phase = float(self.scope.query("MEASUrement:IMMed:VALue?"))
             return phase
 
         except VisaIOError as e:
@@ -89,10 +92,10 @@ class Tektronix_scope:
             return None
 
         try:
-            self.scope.write('MEASUrement:IMMed:TYPe FREQuency')
-            self.scope.write('MEASUrement:IMMed:SOUrce1 CH1')
+            self.scope.write("MEASUrement:IMMed:TYPe FREQuency")
+            self.scope.write("MEASUrement:IMMed:SOUrce1 CH1")
 
-            freq = float(self.scope.query('MEASUrement:IMMed:VALue?'))
+            freq = float(self.scope.query("MEASUrement:IMMed:VALue?"))
             return freq
 
         except VisaIOError as e:
@@ -106,9 +109,10 @@ class Tektronix_scope:
         else:
             print("Aucune connexion à fermer.")
 
+
 # Exemple d'utilisation
-if __name__ == '__main__':
-    ip = '10.192.79.8'
+if __name__ == "__main__":
+    ip = "10.192.79.8"
 
     # Connect to the oscilloscope
     mesure = Tektronix_scope(ip)
@@ -134,6 +138,6 @@ if __name__ == '__main__':
 
     # Print the time of the measurement
     print(f"Temps de mesure : {time.time() - start} s")
-    
+
     # Disconnect from the oscilloscope
     mesure.deconnecter()
