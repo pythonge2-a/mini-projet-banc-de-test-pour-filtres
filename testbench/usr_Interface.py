@@ -325,7 +325,7 @@ class MainFrame(wx.Frame):
 
             # Connexion au multimètre si sélectionné
             if self.use_multimeter.IsChecked():
-                multimeter = siglentmultimeter.SiglentMultimeter(ip["Multimètre"])
+                multimeter = siglentmultimeter.SiglentSDM3065X(ip["Multimètre"])
                 multimeter.connect()
                 multimeter.VacChangeMode()
 
@@ -337,7 +337,8 @@ class MainFrame(wx.Frame):
 
             # Mesure de la tension si un multimètre est connecté
             if self.use_multimeter.IsChecked():
-                gain = multimeter.mesure_tension()
+                outV_mes = multimeter.get_measure()
+                gain = outV_mes / pk2pk #divide output voltage by input voltage (martin said pk2pk is inout voltage...)
             else:
                 gain = scope.mesure_gain()
             

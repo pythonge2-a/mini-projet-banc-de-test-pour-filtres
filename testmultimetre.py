@@ -1,6 +1,6 @@
 from testbench.siglentmultimeter import SiglentSDM3065X
 
-ip_test_lab_multimeter = "10.192.79.36"
+ip_test_lab_multimeter = "192.168.137.221"
 
 print("Test du multimètre Siglent SDM3065X")
 

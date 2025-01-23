@@ -16,6 +16,7 @@ class SiglentSDM3065X:
 
         try:
             self.multimeter = self.resourceManager.open_resource(self.resourceString)
+            self.multimeter.timeout = 5000  # Define timeout to 5000 ms (5 seconds)
             self.isconnected = True
             print("Connexion établie avec le multimètre.")
         except Exception as e:
