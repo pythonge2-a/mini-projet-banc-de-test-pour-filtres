@@ -26,81 +26,92 @@ def formulate_data_single_Vin(freqs, vin, vs_out):
 
 def get_cutoff_frequency(data):
     """Return cut off frequency (-3 dB) from dictionary."""
-     # Trier les données par fréquence croissante
+    # Trier les données par fréquence croissante
     frequences = np.array(sorted(data.keys()))
-    gains = np.array([data[f] for f in frequences])
+    gains_db = np.array([data[f] for f in frequences])
 
-    # Trouver le gain maximal
-    gain_max = max(gains)
+    # Vérifier les valeurs invalides dans les données
+    if not np.all(np.isfinite(gains_db)):
+        raise ValueError("Les gains contiennent des valeurs non finies (NaN ou Inf). Vérifiez les données.")
 
-    # Calculer le niveau de -3 dB
-    seuil_coupure = gain_max / np.sqrt(2)
+    # Parcourir les fréquences pour détecter une chute de -3 dB par décades
+    for i in range(1, len(frequences)):
+        # Vérifier si les points appartiennent à une nouvelle décade
+        if np.log10(frequences[i]) - np.log10(frequences[i - 1]) >= 1:
+            # Calcul de la différence de gain entre les deux points
+            gain_diff = gains_db[i] - gains_db[i - 1]
+            if abs(gain_diff) >= 3:  # Si la chute est de -3 dB ou plus
+                return frequences[i]
 
-    # Trouver la fréquence la plus proche du seuil de -3 dB
-    for i in range(1, len(gains)):
-        if gains[i] <= seuil_coupure:
-            # Interpolation linéaire pour une meilleure précision
-            f1, f2 = frequences[i - 1], frequences[i]
-            g1, g2 = gains[i - 1], gains[i]
-            frequence_coupure = f1 + (seuil_coupure - g1) * (f2 - f1) / (g2 - g1)
-            return frequence_coupure
-    
     # Si aucune fréquence de coupure n'est trouvée
     return None
 
 
 def get_quality_factor(data):
     """Return quality factor from dictionary."""
-    if not isinstance(data, dict):
-        raise TypeError("Data must be a dictionary")
+    # Trier les données par fréquence croissante
+    frequences = np.array(sorted(data.keys()))
+    gains = np.array([data[f] for f in frequences])
 
-    cutfreq = get_cutoff_frequency(data)
+    # Trouver la fréquence centrale (f0) où le gain est maximal
+    gain_max = max(gains)
+    indice_max = np.argmax(gains)
+    f0 = frequences[indice_max]
 
-    if cutfreq is None:
-        raise ValueError("Cutoff frequency is not found")
+    # Calculer le niveau de -3 dB
+    seuil_coupure = gain_max / np.sqrt(2)
 
-    cutfreq = round(cutfreq, 0)
+    # Trouver f1 et f2 (fréquences où le gain est égal au seuil -3 dB)
+    f1, f2 = None, None
+    for i in range(1, len(gains)):
+        if gains[i - 1] >= seuil_coupure > gains[i]:
+            # Interpolation linéaire pour f1
+            f1 = frequences[i - 1] + (seuil_coupure - gains[i - 1]) * (frequences[i] - frequences[i - 1]) / (gains[i] - gains[i - 1])
+        if gains[i - 1] <= seuil_coupure < gains[i]:
+            # Interpolation linéaire pour f2
+            f2 = frequences[i - 1] + (seuil_coupure - gains[i - 1]) * (frequences[i] - frequences[i - 1]) / (gains[i] - gains[i - 1])
+    
+    # Vérifier si f1 et f2 ont été trouvés
+    if f1 is not None and f2 is not None and f2 > f1:
+        # Calculer le facteur de qualité
+        Q = f0 / (f2 - f1)
+        return Q
 
-    if data[cutfreq / 10] < 5:
-        return cutfreq / (2 * (data[cutfreq] + 3))
-    else:
-        return cutfreq / (2 * (data[cutfreq / 10] + 3))
+    # Retourner None si Q ne peut pas être calculé
+    return None
 
 
 def get_order(data):
     """Return order of the filter."""
+    # Trier les données par fréquence croissante
+    frequences = np.array(sorted(data.keys()))
+    gains = np.array([data[f] for f in frequences])
 
-    if not isinstance(data, dict):
-        raise TypeError("Data must be a dictionary")
+    # Vérifier si les gains sont en dB, sinon les convertir
+    if max(gains) > 0:
+        gains = 20 * np.log10(gains)
 
-    if data == None:
-        raise ValueError("No data found")
+    # Trouver la fréquence de coupure (-3 dB)
+    gain_max = max(gains)
+    seuil_coupure = gain_max - 3
 
-    cutfreq = get_cutoff_frequency(data)
+    # Trouver l'indice correspondant à la fréquence de coupure
+    indice_coupure = None
+    for i in range(1, len(gains)):
+        if gains[i - 1] >= seuil_coupure > gains[i]:
+            indice_coupure = i
+            break
 
-    if cutfreq is None:
-        raise ValueError("Cutoff frequency is not found")
+    if indice_coupure is None:
+        return None  # Impossible de déterminer l'ordre sans fréquence de coupure
 
-    cutfreq = round(cutfreq, 0)
+    # Calculer la pente autour de la fréquence de coupure (zone linéaire)
+    pente = (gains[indice_coupure] - gains[indice_coupure + 1]) / \
+            (np.log10(frequences[indice_coupure]) - np.log10(frequences[indice_coupure + 1]))
 
-    if data[cutfreq / 10] < 5:
-        if -19 > data[10 * cutfreq] > -25:
-            return 1
-        elif -39 > data[10 * cutfreq] > -45:
-            return 2
-        elif -58 > data[10 * cutfreq] > -65:
-            return 3
-        else:
-            return None
-    else:
-        if -19 > data[cutfreq / 10] > -25:
-            return 1
-        elif -39 > data[cutfreq / 10] > -45:
-            return 2
-        elif -58 > data[cutfreq / 10] > -65:
-            return 3
-        else:
-            return None
+    # La pente en dB/décade est proportionnelle à l'ordre
+    ordre = abs(pente / 20)  # Diviser par 20 car un ordre donne -20 dB/décade
+    return round(ordre)
 
 
 def plot_gain(data):
