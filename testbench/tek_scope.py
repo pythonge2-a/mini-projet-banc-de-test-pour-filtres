@@ -19,6 +19,11 @@ class Tektronix_scope:
             self.scope.write("SELect:CH1 ON")
             self.scope.write("SELect:CH2 ON")
 
+            # Trigger sur CH1
+            self.scope.write("TRIGger:MODE EDGE")
+            self.scope.write("TRIGger:EDGE:SOURce CH1")
+            self.scope.write("TRIGger:EDGE:LEVel 0")
+
             # Acquisition en cours
             self.scope.write("ACQuire:STATE RUN")
 
@@ -26,7 +31,7 @@ class Tektronix_scope:
             print(f"Erreur de connexion à l'oscilloscope : {e}")
             self.scope = None
 
-    def rescale_channels(self, frequence, pk2pk):
+    def rescale_channels(self, frequence):
         try:
             # Auto scale
             self.scope.write("AUToscale")

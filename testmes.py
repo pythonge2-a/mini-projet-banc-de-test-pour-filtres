@@ -22,7 +22,7 @@ except Exception as e:
     exit(1)
 
 try:
-    scope = tek_scope.Tektronix_scope("10.192.79.63")
+    scope = tek_scope.Tektronix_scope("10.192.79.71")
 except Exception as e:
     print(f"Erreur de connexion à l'oscilloscope : {e}")
     function_gen.DeactivateOutput()
@@ -34,7 +34,7 @@ amp_x, amp_y, phase_x, phase_y = [], [], [], []
 
 # Init
 function_gen.set_frequency(min_freq)
-scope.rescale_channels(frequence=min_freq, pk2pk=pk2pk)
+scope.rescale_channels(frequence=min_freq)
 time.sleep(1)
 freq_mes = scope.mesure_frequence()
 gain = scope.mesure_gain()
@@ -45,7 +45,7 @@ for i in range(0, points):
     function_gen.set_frequency(freq)
     time.sleep(0.2)
 
-    scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
+    scope.rescale_channels(frequence=freq)
     time.sleep(0.2)
     freq_mes = scope.mesure_frequence()
     gain = scope.mesure_gain()

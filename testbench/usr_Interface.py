@@ -274,7 +274,7 @@ class MainFrame(wx.Frame):
             function_gen.set_frequency(freq)
             time.sleep(2)
 
-            scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
+            scope.rescale_channels(frequence=freq)
             time.sleep(2)
 
             # Mesures initiales
@@ -295,7 +295,7 @@ class MainFrame(wx.Frame):
                 function_gen.set_frequency(freq)
                 time.sleep(0.1)
 
-                scope.rescale_channels(frequence=freq, pk2pk=pk2pk)
+                scope.rescale_channels(frequence=freq)
                 time.sleep(0.1)
 
                 freq_mes = scope.mesure_frequence()
