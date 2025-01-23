@@ -1,16 +1,13 @@
 # fichier de gestion de l'interface utilisateur
 
 import wx
-import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
-import numpy as np
 import time
 
 import tek_scope
 import Agilent_GenFct
 import siglentmultimeter
-import pyvisa
 import filtermathRDG
 
 
