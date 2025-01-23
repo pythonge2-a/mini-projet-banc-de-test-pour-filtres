@@ -312,7 +312,6 @@ class MainFrame(wx.Frame):
 
         # Tracer le graphique logarithmique pour le gain
         ax1.set_xscale('log')
-        ax1.set_yscale('log')
         ax1.plot(gain_x, gain_y, marker='o', color='blue', label='Amplitude')
         ax1.set_title('Amplitude (Log-Log)')
         ax1.set_xlabel('Frequency (Hz)')
