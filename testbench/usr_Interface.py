@@ -332,6 +332,13 @@ class MainFrame(wx.Frame):
             print(f"Phase X: {phase_x}")
             print(f"Phase Y: {phase_y}")
 
+            #supression des valeurs abérrantes de phase (supérieur à 90° et inférieur à -90°) et de la fréquence apartenant à la phase
+            for i in range(len(phase_y)):
+                if phase_y[i] > 90 or phase_y[i] < -90:
+                    phase_y[i] = None
+                    gain_y[i] = None
+                    gain_x[i] = None
+
         except Exception as e:
             print(f"Erreur lors de la connexion ou de l'acquisition : {e}")
             wx.MessageBox(f"Erreur lors de la connexion ou de l'acquisition : {e}", 'Error', wx.OK | wx.ICON_ERROR)
