@@ -22,10 +22,6 @@ class Tektronix_scope:
             # Acquisition en cours
             self.scope.write("ACQuire:STATE RUN")
 
-            # Sonde 10x
-            self.scope.write("CH1:PRObe 10")
-            self.scope.write("CH2:PRObe 10")
-
         except VisaIOError as e:
             print(f"Erreur de connexion à l'oscilloscope : {e}")
             self.scope = None
