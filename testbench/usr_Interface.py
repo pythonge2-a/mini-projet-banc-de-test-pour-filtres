@@ -327,6 +327,7 @@ class MainFrame(wx.Frame):
             if self.use_multimeter.IsChecked():
                 multimeter = siglentmultimeter.SiglentMultimeter(ip["Multimètre"])
                 multimeter.connect()
+                multimeter.VacChangeMode()
 
             # Mesure of the first point
             function_gen.set_frequency(min_freq)
@@ -355,7 +356,8 @@ class MainFrame(wx.Frame):
 
                 # Mesure de la tension si un multimètre est connecté
                 if self.use_multimeter.IsChecked():
-                    gain = multimeter.mesure_tension()
+                    outV_mes = multimeter.get_measure()
+                    gain = outV_mes / pk2pk #divide output voltage by input voltage (martin said pk2pk is inout voltage...)
                 else:
                     gain = scope.mesure_gain()
                 
